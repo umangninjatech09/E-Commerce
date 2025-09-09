@@ -9,4 +9,4 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Customer Service")
 
 # Register endpoints
-app.include_router(customer_router, prefix="/api/v1/customers", tags=["Customers"])
+app.include_router(customer_router, prefix="/customers", tags=["Customers"])
