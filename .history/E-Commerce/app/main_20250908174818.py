@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from app.db.session import Base, engine
 from app.api.v1.endpoints.customers import router as customer_router
 
 
@@ -8,5 +7,5 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Customer Service")
 
-# Register endpoints
+# Directly include customer endpoints
 app.include_router(customer_router, prefix="/api/v1/customers", tags=["Customers"])
