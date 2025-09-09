@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from app.db.session import Base, engine
-from app.api.v1.endpoints.customers import router as customer_router
-
+from E-Capp.api.v1.endpoints.customer import router as customer_router  # Ensure this path is correct
 
 # Create tables
 Base.metadata.create_all(bind=engine)
