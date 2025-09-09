@@ -12,7 +12,7 @@ def get_db():
     finally:
         db.close()
 
-DATABASE_URL = "sqlite:///./customer.db"
+DATABASE_URL = "sqlite:///./E-Commerce.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
