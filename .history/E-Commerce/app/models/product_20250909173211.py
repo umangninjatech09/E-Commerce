@@ -12,4 +12,4 @@ class Product(Base):
     price = Column(Float, nullable=False)
     category = Column(String, nullable=True)
 
-    inventory = relationship("Inventory", back_populates="product", uselist=False)
+    

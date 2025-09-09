@@ -11,7 +11,7 @@ class ProductBase(BaseModel):
 
 
 class ProductCreate(ProductBase):
-    pass  
+    pass  # Inherits all fields from ProductBase for creation
 
 
 class ProductUpdate(BaseModel):

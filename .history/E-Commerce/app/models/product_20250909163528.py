@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float
 from app.db.session import Base  # Make sure your Base comes from your database setup
-from sqlalchemy.orm import relationship
 
 
 class Product(Base):
@@ -11,5 +10,3 @@ class Product(Base):
     description = Column(String, nullable=True)
     price = Column(Float, nullable=False)
     category = Column(String, nullable=True)
-
-    inventory = relationship("Inventory", back_populates="product", uselist=False)

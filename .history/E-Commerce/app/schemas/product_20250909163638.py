@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 
+# -------------------- SCHEMAS -------------------- #
 
 class ProductBase(BaseModel):
     name: str
@@ -11,7 +12,7 @@ class ProductBase(BaseModel):
 
 
 class ProductCreate(ProductBase):
-    pass  
+    pass  # Inherits all fields from ProductBase for creation
 
 
 class ProductUpdate(BaseModel):
