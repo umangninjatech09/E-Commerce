@@ -23,7 +23,7 @@ def register(customer: CustomerCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud_customer.create_customer(db, customer)
 
-@router.post("/login")
+@router.post("/login")product
 def login(customer: CustomerLogin, db: Session = Depends(get_db)):
     db_customer = crud_customer.authenticate_customer(db, customer.email, customer.password)
     if not db_customer:
