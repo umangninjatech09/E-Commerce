@@ -67,9 +67,9 @@ def create_or_update_discount(db: Session, data: schemas.DiscountCreate):
         discount_percentage=data.discount_percentage,
         start_date=data.start_date,
         end_date=data.end_date,
-        # created_at=datetime.utcnow()  # <--- Assign created_at explicitly
+        # created_at=datetime.utcnow()  
     )
     db.add(db_discount)
     db.commit()
-    db.refresh(db_discount)  # <--- Ensure created_at is loaded
+    db.refresh(db_discount)  
     return db_discount
