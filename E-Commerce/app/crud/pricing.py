@@ -3,7 +3,7 @@ from app.models import pricing as models
 from app.schemas import pricing as schemas  
 from typing import List
 
-# ---------------- Price CRUD ---------------- #
+# Price CRUD 
 
 def create_or_update_price(db: Session, data: schemas.PriceCreate):
     db_price = db.query(models.Price).filter(models.Price.product_id == data.product_id).first()
@@ -34,8 +34,6 @@ def delete_price(db: Session, product_id: str):
     return False
 
 # Discount CRUD 
-
-
 
 def get_discounts_by_product(db: Session, product_id: str) -> List[models.Discount]:
     return db.query(models.Discount).filter(models.Discount.product_id == product_id).all()
