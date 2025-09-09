@@ -1,0 +1,6 @@
+from pydantic import BaseModel, EmailStr
+
+class CustomerBase(BaseModel):
+    name: str
+    email: EmailStr
+    

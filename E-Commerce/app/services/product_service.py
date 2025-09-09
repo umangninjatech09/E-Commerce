@@ -31,4 +31,8 @@
 #         return db.query(Product).all()
 
 #     def get_product(self, db, product_id: int):
+<<<<<<< HEAD
 #         return db.query(Product).filter(Product.id == product_id).first()
+=======
+#         return db.query(Product).filter(Product.id == product_id).first()
+>>>>>>> 3a06cbfd81f9b753e0264c1cf3057f42a055b493
