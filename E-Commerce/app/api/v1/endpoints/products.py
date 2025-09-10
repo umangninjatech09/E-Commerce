@@ -15,8 +15,7 @@ from app.crud.product import (
 
 router = APIRouter()
 
-
-# -------------------- CREATE PRODUCT -------------------- #
+# CREATE PRODUCT 
 @router.post("/", response_model=ProductOut)
 def create_product_endpoint(product: ProductCreate, db: Session = Depends(get_db)):
     existing_product = get_product_by_name(db, product.name)
@@ -24,8 +23,7 @@ def create_product_endpoint(product: ProductCreate, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail="Product with this name already exists")
     return create_product(db, product)
 
-
-# -------------------- GET PRODUCT BY ID -------------------- #
+# GET PRODUCT BY ID 
 @router.get("/{product_id}", response_model=ProductOut)
 def get_product_endpoint(product_id: int, db: Session = Depends(get_db)):
     db_product = get_product_by_id(db, product_id)
@@ -33,14 +31,12 @@ def get_product_endpoint(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
     return db_product
 
-
-# -------------------- LIST PRODUCTS -------------------- #
+# LIST PRODUCTS 
 @router.get("/", response_model=List[ProductOut])
 def list_products_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_all_products(db, skip=skip, limit=limit)
 
-
-# -------------------- UPDATE PRODUCT -------------------- #
+# UPDATE PRODUCT 
 @router.put("/{product_id}", response_model=ProductOut)
 def update_product_endpoint(product_id: int, product: ProductUpdate, db: Session = Depends(get_db)):
     db_product = update_product(db, product_id, product)
@@ -48,8 +44,7 @@ def update_product_endpoint(product_id: int, product: ProductUpdate, db: Session
         raise HTTPException(status_code=404, detail="Product not found")
     return db_product
 
-
-# -------------------- DELETE PRODUCT -------------------- #
+# DELETE PRODUCT 
 @router.delete("/{product_id}", response_model=ProductOut)
 def delete_product_endpoint(product_id: int, db: Session = Depends(get_db)):
     db_product = delete_product(db, product_id)

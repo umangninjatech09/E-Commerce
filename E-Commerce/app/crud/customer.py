@@ -26,6 +26,3 @@ def authenticate_customer(db: Session, email: str, password: str):
     if not verify_password(password, customer.password_hash):
         return None
     return customer
-
-
-

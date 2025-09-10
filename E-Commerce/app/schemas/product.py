@@ -1,9 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
 
-
-# -------------------- SCHEMAS -------------------- #
-
 class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -11,10 +8,8 @@ class ProductBase(BaseModel):
     stock: Optional[int] = 0
     category: Optional[str] = None
 
-
 class ProductCreate(ProductBase):
-    pass  # Inherits all fields from ProductBase for creation
-
+    pass 
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
@@ -22,7 +17,6 @@ class ProductUpdate(BaseModel):
     price: Optional[float] = None
     stock: Optional[int] = None
     category: Optional[str] = None
-
 
 class ProductOut(ProductBase):
     id: int

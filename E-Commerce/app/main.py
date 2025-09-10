@@ -3,17 +3,14 @@ from app.db.session import Base, engine
 from app.api.v1.endpoints.products import router as product_router
 from app.api.v1.endpoints.customers import router as customer_router
 from app.api.v1.endpoints.pricing import router as pricing_router
+from app.api.v1.endpoints.search import router as search_router
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Product Service")
+app = FastAPI(title="E-Commerce Product Catalog System")
 
-# Register endpoints
 app.include_router(product_router, prefix="/products", tags=["Products"])
-# app = FastAPI(title="Customer Service")
-
-# Register endpoints
 app.include_router(customer_router, prefix="/customers", tags=["Customers"])
-
 app.include_router(pricing_router, prefix="/pricing", tags=["Pricing"])
+app.include_router(search_router, prefix="/search", tags=["Search"])
