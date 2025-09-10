@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query    
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -9,7 +9,6 @@ from app.crud import pricing as crud
 router = APIRouter()
 
 # Price Endpoints 
-
 @router.post("/pricing/set", response_model=schemas.PriceOut)
 def set_price(data: schemas.PriceCreate, db: Session = Depends(get_db)):
     return crud.create_or_update_price(db, data)
@@ -21,8 +20,12 @@ def get_price(product_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Price not found")
     return price
 
-@router.get("/pricing/", response_model=List[schemas.PriceOut])
-def list_prices(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+@router.get("/pricing/", response_model=List[schemas.PriceOut]) 
+def list_prices(
+    skip: int = Query(...), # ... - means required- user must pass value
+    limit: int = Query(...), 
+    db: Session = Depends(get_db)
+    ):
     return crud.get_all_prices(db, skip=skip, limit=limit)
 
 @router.delete("/pricing/{product_id}")
@@ -33,7 +36,6 @@ def delete_price(product_id: str, db: Session = Depends(get_db)):
     return {"detail": "Price deleted successfully"}
 
 # Discount Endpoints 
-
 @router.post("/discount/set", response_model=schemas.DiscountOut)
 def set_discount(data: schemas.DiscountCreate, db: Session = Depends(get_db)):
     return crud.create_or_update_discount(db, data)

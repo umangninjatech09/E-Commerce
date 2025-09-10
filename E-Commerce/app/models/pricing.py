@@ -6,15 +6,15 @@ class Price(Base):
     __tablename__ = "prices"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(String, unique=True, index=True, nullable=False)
+    product_id = Column(Integer, unique=True, index=True, nullable=False)
     base_price = Column(Float, nullable=False)
-    created_at = Column(DateTime, default=datetime)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 class Discount(Base):
     __tablename__ = "discounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(String, index=True, nullable=False)
+    product_id = Column(Integer, index=True, nullable=False)
     discount_percentage = Column(Float, nullable=False)
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)

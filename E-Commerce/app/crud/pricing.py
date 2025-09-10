@@ -1,40 +1,38 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session 
 from app.models import pricing as models
 from app.schemas import pricing as schemas  
 from typing import List
 
 # Price CRUD 
-
 def create_or_update_price(db: Session, data: schemas.PriceCreate):
-    db_price = db.query(models.Price).filter(models.Price.product_id == data.product_id).first()
-    if db_price:
-        db_price.base_price = data.base_price
+    price = db.query(models.Price).filter(models.Price.product_id == data.product_id).first()
+    if price:
+        price.base_price = data.base_price
+        db.commit() # permenatly save changes to the database
+        db.refresh(price) # object is refreshed with the latest data from the database
+        return price 
     else:
-        db_price = models.Price(
-            product_id=data.product_id,
-            base_price=data.base_price
-        )
-        db.add(db_price)
-    db.commit()
-    db.refresh(db_price)
-    return db_price
+        new_price = models.Price(product_id=data.product_id, base_price=data.base_price)  #data = API through Pydantic schema object (schemas.PriceCreate
+        db.add(new_price)
+        db.commit()
+        db.refresh(new_price)
+        return new_price
 
 def get_price_by_product(db: Session, product_id: str):
     return db.query(models.Price).filter(models.Price.product_id == product_id).first()
 
 def get_all_prices(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Price).offset(skip).limit(limit).all()
+    return db.query(models.Price).offset(skip).limit(limit).all()   #skip = starting point skip
 
 def delete_price(db: Session, product_id: str):
     db_price = db.query(models.Price).filter(models.Price.product_id == product_id).first()
     if db_price:
-        db.delete(db_price)
-        db.commit()
+        db.delete(db_price) # mark the object for deletion
+        db.commit() # permenatly save changes to the database
         return True
     return False
 
 # Discount CRUD 
-
 def get_discounts_by_product(db: Session, product_id: str) -> List[models.Discount]:
     return db.query(models.Discount).filter(models.Discount.product_id == product_id).all()
 
@@ -45,19 +43,6 @@ def delete_discount(db: Session, discount_id: int):
         db.commit()
         return True
     return False
-
-
-# def create_or_update_price(db: Session, data: schemas.PriceCreate):
-#     db_price = db.query(models.Price).filter(models.Price.product_id == data.product_id).first()
-#     if db_price:
-#         db_price.base_price = data.base_price
-#     else:
-#         db_price = models.Price(product_id=data.product_id, base_price=data.base_price)
-#         db.add(db_price)
-#     db.commit()
-#     db.refresh(db_price)  # <--- Ensure created_at is loaded
-#     return db_price
-
 
 def create_or_update_discount(db: Session, data: schemas.DiscountCreate):
     db_discount = models.Discount(
