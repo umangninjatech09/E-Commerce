@@ -52,19 +52,3 @@ def delete_product_endpoint(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
     return db_product
 
-
-
-
-product_stock = {
-    1: 10,
-    2: 5,
-    3: 20,
-    4: 0,
-}
-
-@router.get("/{product_id}/stock")
-async def check_product_stock(product_id: int):
-    if product_id not in product_stock:
-        raise HTTPException(status_code=404, detail="Product not found")
-
-    return {"product_id": product_id, "stock": product_stock[product_id]}
