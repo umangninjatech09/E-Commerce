@@ -24,22 +24,22 @@ def api_get_pricing(pricing_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Pricing not found")
     return db_pricing
 
-# @router.get("/", response_model=List[schemas.Pricing])
-# def list_pricings(skip: int = Query(0), limit: int = Query(100), db: Session = Depends(get_db)):
-#     """List all pricings with optional pagination"""
-#     return crud_pricing.get_all_pricings(db)[skip: skip + limit]
-
 @router.get("/product/{product_id}", response_model=schemas.Pricing)
 def get_pricing_by_product(product_id: int, db: Session = Depends(get_db)):
-    """Get pricing for a specific product"""
     db_pricing = crud_pricing.get_pricing_by_product(db, product_id)
+    if not db_pricing:
+        raise HTTPException(status_code=404, detail="Pricing not found")
+    return db_pricing
+
+@router.put("/{pricing_id}", response_model=schemas.Pricing)
+def update_pricing(pricing_id: int, data: schemas.PricingCreate, db: Session = Depends(get_db)):
+    db_pricing = crud_pricing.update_pricing(db, pricing_id, data)
     if not db_pricing:
         raise HTTPException(status_code=404, detail="Pricing not found")
     return db_pricing
 
 @router.delete("/{pricing_id}")
 def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
-    """Delete a pricing by ID"""
     deleted = crud_pricing.delete_pricing(db, pricing_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Pricing not found")
