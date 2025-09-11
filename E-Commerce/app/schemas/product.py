@@ -1,31 +1,27 @@
 from pydantic import BaseModel
 from typing import Optional
-
-
-# -------------------- SCHEMAS -------------------- #
+from datetime import datetime
 
 class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
-    price: float
-    stock: Optional[int] = 0
+    sku: str
     category: Optional[str] = None
-
+    brand: Optional[str] = None
 
 class ProductCreate(ProductBase):
-    pass  # Inherits all fields from ProductBase for creation
-
+    pass
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
-    stock: Optional[int] = None
+    sku: Optional[str] = None
     category: Optional[str] = None
-
+    brand: Optional[str] = None
 
 class ProductOut(ProductBase):
     id: int
+    created_at: datetime
 
     class Config:
-        from_attributes = True  
+        from_attributes = True 
