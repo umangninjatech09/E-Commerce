@@ -2,6 +2,10 @@ from sqlalchemy.orm import Session
 from app.models.pricing import Pricing
 from app.schemas.pricing import PricingCreate
 
+from sqlalchemy.orm import Session
+from app.models.pricing import Pricing
+from app.schemas.pricing import PricingCreate
+
 def create_pricing(db: Session, pricing: PricingCreate):
     db_pricing = Pricing(**pricing.dict())
     db.add(db_pricing)

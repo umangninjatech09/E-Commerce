@@ -1,15 +1,17 @@
-from sqlalchemy import Column, Integer, String, Float
-from app.db.session import Base  # Make sure your Base comes from your database setup
+from sqlalchemy import Column, Integer, String, Text, DateTime, func
+from app.db.session import Base
 from sqlalchemy.orm import relationship
 
 class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    price = Column(Float, nullable=False)
-    stock = Column(Integer, default=0)
-    category = Column(String, nullable=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    sku = Column(String, unique=True, index=True)
+    category = Column(String(100), nullable=True)
+    brand = Column(String(100), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    pricings = relationship("Pricing", back_populates="product")
+    # pricings = relationship("Pricing", back_populates="product")
+    pricings = relationship("Pricing", back_populates="product", cascade="all, delete")

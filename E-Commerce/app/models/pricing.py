@@ -13,3 +13,4 @@ class Pricing(Base):
     discount = Column(Float, default=0.0)
 
     product = relationship("Product", back_populates="pricings")
+    
