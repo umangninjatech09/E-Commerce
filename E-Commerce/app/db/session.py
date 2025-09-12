@@ -9,7 +9,7 @@ Base = declarative_base()
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 # Dependency to get DB session
 def get_db():
@@ -18,3 +18,7 @@ def get_db():
         yield db 
     finally:
         db.close()
+
+def init_db():
+    from app.models import Product, Inventory, Pricing, Customer, SearchIndex
+    Base.metadata.create_all(bind=engine)

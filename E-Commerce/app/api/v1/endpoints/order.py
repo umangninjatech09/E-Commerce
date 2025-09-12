@@ -1,48 +1,38 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas.order import OrderCreate, OrderOut
-from app.crud import order as crud
+from typing import List
+
 from app.db.session import get_db
-from app.services.product_service import check_stock
-from app.services.pricing_service import get_price
+from app.schemas.order import OrderCreate, OrderOut, OrderUpdate
+from app.crud import order as crud
 
 router = APIRouter()
 
 @router.post("/", response_model=OrderOut)
-async def place_order(data: OrderCreate, db: Session = Depends(get_db)):
-    validated_items = []
-    total_amount = 0.0
-
-    for item in data.items:
-        stock_ok = await check_stock(item.product_id, item.qty)
-        if not stock_ok:
-            raise HTTPException(status_code=400, detail=f"Not enough stock for product {item.product_id}")
-
-        price = await get_price(item.product_id)
-        line_total = price * item.qty
-        total_amount += line_total
-
-        validated_items.append({
-            "product_id": item.product_id,
-            "qty": item.qty,
-            "price": price
-        })
-
-    order = crud.create_order(db, data, validated_items, total_amount)
-    return order
-
+def create_order(order: OrderCreate, db: Session = Depends(get_db)):
+    return crud.create_order(db, order)
 
 @router.get("/{order_id}", response_model=OrderOut)
-def get_order(order_id: int, db: Session = Depends(get_db)):
-    order = crud.get_order(db, order_id)
-    if not order:
+def read_order(order_id: int, db: Session = Depends(get_db)):
+    db_order = crud.get_order(db, order_id)
+    if not db_order:
         raise HTTPException(status_code=404, detail="Order not found")
-    return order
+    return db_order
 
+@router.get("/", response_model=List[OrderOut])
+def list_orders(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_orders(db, skip=skip, limit=limit)
 
-@router.post("/{order_id}/cancel", response_model=OrderOut)
-def cancel_order(order_id: int, db: Session = Depends(get_db)):
-    order = crud.cancel_order(db, order_id)
-    if not order:
+@router.put("/{order_id}", response_model=OrderOut)
+def update_order(order_id: int, order: OrderUpdate, db: Session = Depends(get_db)):
+    updated = crud.update_order(db, order_id, order)
+    if not updated:
         raise HTTPException(status_code=404, detail="Order not found")
-    return order
+    return updated
+
+@router.delete("/{order_id}")
+def delete_order(order_id: int, db: Session = Depends(get_db)):
+    success = crud.delete_order(db, order_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"message": "Order deleted"}

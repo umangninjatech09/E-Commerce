@@ -1,54 +1,48 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
+from sqlalchemy.orm import Session
 
-from app.db.session import get_db
-from app.schemas.product import ProductCreate, ProductUpdate, ProductOut
+from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 from app.crud.product import (
-    get_product_by_id,
-    get_product_by_name,
-    get_all_products,
     create_product,
+    get_all_products,
+    get_product_by_id,
     update_product,
-    delete_product
+    delete_product,
+    get_product_by_sku,
 )
+from app.db.session import get_db
 
-router = APIRouter()
+router = APIRouter(prefix="/products", tags=["Products"])
 
-# CREATE PRODUCT 
-@router.post("/", response_model=ProductOut)
-def create_product_endpoint(product: ProductCreate, db: Session = Depends(get_db)):
-    existing_product = get_product_by_name(db, product.name)
-    if existing_product:
-        raise HTTPException(status_code=400, detail="Product with this name already exists")
-    return create_product(db, product)
+@router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
+def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
+    existing = get_product_by_sku(db, payload.sku)
+    if existing:
+        raise HTTPException(status_code=400, detail="SKU already exists")
+    return create_product(db, payload)
 
-# GET PRODUCT BY ID 
-@router.get("/{product_id}", response_model=ProductOut)
-def get_product_endpoint(product_id: int, db: Session = Depends(get_db)):
-    db_product = get_product_by_id(db, product_id)
-    if not db_product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return db_product
-
-# LIST PRODUCTS 
 @router.get("/", response_model=List[ProductOut])
-def list_products_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_all_products(db, skip=skip, limit=limit)
+def api_list_products(db: Session = Depends(get_db)):
+    return get_all_products(db)
 
-# UPDATE PRODUCT 
+@router.get("/{product_id}", response_model=ProductOut)
+def api_get_product(product_id: int, db: Session = Depends(get_db)):
+    product = get_product_by_id(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
 @router.put("/{product_id}", response_model=ProductOut)
-def update_product_endpoint(product_id: int, product: ProductUpdate, db: Session = Depends(get_db)):
-    db_product = update_product(db, product_id, product)
-    if not db_product:
+def api_update_product(product_id: int, payload: ProductUpdate, db: Session = Depends(get_db)):
+    product = update_product(db, product_id, payload)
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return db_product
+    return product
 
-# DELETE PRODUCT 
-@router.delete("/{product_id}", response_model=ProductOut)
-def delete_product_endpoint(product_id: int, db: Session = Depends(get_db)):
-    db_product = delete_product(db, product_id)
-    if not db_product:
+@router.delete("/{product_id}", status_code=status.HTTP_200_OK)
+def api_delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = delete_product(db, product_id)
+    if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return db_product
-
+    return {"message": "Product deleted successfully"}

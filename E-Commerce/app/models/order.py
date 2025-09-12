@@ -1,26 +1,13 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from datetime import datetime
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime, func
 from app.db.session import Base
 
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False)
+    customer_id = Column(Integer, index=True)   # Link to Customer Service
+    product_id = Column(Integer, index=True)    # Link to Product Service
+    quantity = Column(Integer, nullable=False)
     total_amount = Column(Float, nullable=False)
-    status = Column(String, default="PENDING")
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    items = relationship("OrderItem", back_populates="order")
-
-class OrderItem(Base):
-    __tablename__ = "order_items"
-
-    id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id"))
-    product_id = Column(Integer, nullable=False)
-    qty = Column(Integer, nullable=False)
-    price_snapshot = Column(Float, nullable=False)
-
-    order = relationship("Order", back_populates="items")
+    status = Column(String, default="pending")  # pending, completed, cancelled
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
