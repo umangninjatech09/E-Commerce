@@ -26,3 +26,7 @@ class ProductOut(ProductBase):
 
     class Config:
         from_attributes = True  
+
+
+class ProductWithInventory(ProductOut):
+    na
