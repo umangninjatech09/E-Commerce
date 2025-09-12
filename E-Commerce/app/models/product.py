@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
 from app.db.session import Base
+from sqlalchemy.orm import relationship
 
 class Product(Base):
     __tablename__ = "products"
@@ -11,3 +12,6 @@ class Product(Base):
     category = Column(String(100), nullable=True)
     brand = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # pricings = relationship("Pricing", back_populates="product")
+    pricings = relationship("Pricing", back_populates="product", cascade="all, delete")
