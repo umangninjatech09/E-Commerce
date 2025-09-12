@@ -1,55 +1,46 @@
-from fastapi import APIRouter, Depends, HTTPException, Query    
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-
-from app.db.session import get_db
+from app.crud import pricing as crud_pricing
 from app.schemas import pricing as schemas
-from app.crud import pricing as crud
+from app.db.session import get_db
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/pricing",
+    tags=["Pricing"]
+)
 
-# Price Endpoints 
-@router.post("/pricing/set", response_model=schemas.PriceOut)
-def set_price(data: schemas.PriceCreate, db: Session = Depends(get_db)):
-    return crud.create_or_update_price(db, data)
+@router.post("/", response_model=schemas.Pricing)
+def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
+    return crud_pricing.create_pricing(db, pricing)
 
-@router.get("/pricing/{product_id}", response_model=schemas.PriceOut)
-def get_price(product_id: str, db: Session = Depends(get_db)):
-    price = crud.get_price_by_product(db, product_id)
-    if not price:
-        raise HTTPException(status_code=404, detail="Price not found")
-    return price
+@router.get("/", response_model=list[schemas.Pricing])
+def api_list_pricings(db: Session = Depends(get_db)):
+    return crud_pricing.get_all_pricings(db)
 
-@router.get("/pricing/", response_model=List[schemas.PriceOut]) 
-def list_prices(
-    skip: int = Query(...), # ... - means required- user must pass value
-    limit: int = Query(...), 
-    db: Session = Depends(get_db)
-    ):
-    return crud.get_all_prices(db, skip=skip, limit=limit)
+@router.get("/{pricing_id}", response_model=schemas.Pricing)
+def api_get_pricing(pricing_id: int, db: Session = Depends(get_db)):
+    db_pricing = crud_pricing.get_pricing_by_id(db, pricing_id)
+    if not db_pricing:
+        raise HTTPException(status_code=404, detail="Pricing not found")
+    return db_pricing
 
-@router.delete("/pricing/{product_id}")
-def delete_price(product_id: str, db: Session = Depends(get_db)):
-    deleted = crud.delete_price(db, product_id)
+@router.get("/product/{product_id}", response_model=schemas.Pricing)
+def get_pricing_by_product(product_id: int, db: Session = Depends(get_db)):
+    db_pricing = crud_pricing.get_pricing_by_product(db, product_id)
+    if not db_pricing:
+        raise HTTPException(status_code=404, detail="Pricing not found")
+    return db_pricing
+
+@router.put("/{pricing_id}", response_model=schemas.Pricing)
+def update_pricing(pricing_id: int, data: schemas.PricingCreate, db: Session = Depends(get_db)):
+    db_pricing = crud_pricing.update_pricing(db, pricing_id, data)
+    if not db_pricing:
+        raise HTTPException(status_code=404, detail="Pricing not found")
+    return db_pricing
+
+@router.delete("/{pricing_id}")
+def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
+    deleted = crud_pricing.delete_pricing(db, pricing_id)
     if not deleted:
-        raise HTTPException(status_code=404, detail="Price not found")
-    return {"detail": "Price deleted successfully"}
-
-# Discount Endpoints 
-@router.post("/discount/set", response_model=schemas.DiscountOut)
-def set_discount(data: schemas.DiscountCreate, db: Session = Depends(get_db)):
-    return crud.create_or_update_discount(db, data)
-
-@router.get("/discount/{product_id}", response_model=List[schemas.DiscountOut])
-def get_discounts(product_id: str, db: Session = Depends(get_db)):
-    discounts = crud.get_discounts_by_product(db, product_id)
-    if not discounts:
-        raise HTTPException(status_code=404, detail="No discounts found")
-    return discounts
-
-@router.delete("/discount/{discount_id}")
-def delete_discount(discount_id: int, db: Session = Depends(get_db)):
-    deleted = crud.delete_discount(db, discount_id)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Discount not found")
-    return {"detail": "Discount deleted successfully"}
+        raise HTTPException(status_code=404, detail="Pricing not found")
+    return {"detail": "Pricing deleted successfully"}

@@ -1,16 +1,29 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class SearchIndexIn(BaseModel):
-    product_id: int
-    name: str
+
+class SearchIndexBase(BaseModel):
+    product_id: Optional[int] = None
+    name: Optional[str] = None
     description: Optional[str] = None
     category: Optional[str] = None
-    price: float
-    stock_status: str
-    rating: Optional[float] = 0.0
+    price: Optional[float] = None
+    entity_type: str
+    entity_id: int
 
-class SearchIndexOut(SearchIndexIn):
+
+class SearchIndexCreate(SearchIndexBase):
+    pass
+
+
+class SearchIndexUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    price: Optional[float] = None
+
+
+class SearchIndexOut(SearchIndexBase):
     id: int
 
     class Config:

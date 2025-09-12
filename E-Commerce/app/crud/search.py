@@ -1,65 +1,44 @@
 from sqlalchemy.orm import Session
-from app.models import search as models
-from app.schemas import search as schemas
-from typing import List, Optional
+from app.models.search import SearchIndex
+from app.schemas.search import SearchIndexCreate, SearchIndexUpdate
 
-def create_or_update_index(db: Session, data: schemas.SearchIndexIn):
-    existing = db.query(models.SearchIndex).filter(models.SearchIndex.product_id == data.product_id).first()
-    if existing:
-        for field, value in data.dict().items():
-            setattr(existing, field, value)
-        db.commit()          # Save changes permanently
-        db.refresh(existing) # Refresh object with latest DB state
-        return existing
-    else:
-        new_entry = models.SearchIndex(**data.dict())
-        db.add(new_entry)
-        db.commit()
-        db.refresh(new_entry)
-        return new_entry
 
-def search_products(db: Session, q: Optional[str] = None, category: Optional[str] = None,
-                    min_price: Optional[float] = None, max_price: Optional[float] = None,
-                    stock_status: Optional[str] = None, sort_by: Optional[str] = None,
-                    order: str = "asc") -> List[models.SearchIndex]:
-    query = db.query(models.SearchIndex)
-
-    if q:
-        query = query.filter((models.SearchIndex.name.contains(q))|(models.SearchIndex.description.contains(q)))
-    if category:
-        query = query.filter(models.SearchIndex.category == category)
-    if min_price is not None:
-        query = query.filter(models.SearchIndex.price >= min_price)
-    if max_price is not None:
-        query = query.filter(models.SearchIndex.price <= max_price)
-    if stock_status:
-        query = query.filter(models.SearchIndex.stock_status == stock_status)
-
-    if sort_by:
-        if order == "asc":
-            query = query.order_by(getattr(models.SearchIndex, sort_by).asc())
-        else:
-            query = query.order_by(getattr(models.SearchIndex, sort_by).desc())
-
-    return query.all()
-
-def update_index(db: Session, product_id: int, data: schemas.SearchIndexIn):
-    db_index = db.query(models.SearchIndex).filter(models.SearchIndex.product_id == product_id).first()
-    if not db_index:
-        return None  
-    for field, value in data.dict().items():
-        setattr(db_index, field, value)
+def create_search_entry(db: Session, obj_in: SearchIndexCreate):
+    db_obj = SearchIndex(**obj_in.dict())
+    db.add(db_obj)
     db.commit()
-    db.refresh(db_index)
-    return db_index
+    db.refresh(db_obj)
+    return db_obj
 
-def get_index_by_id(db: Session, product_id: int):
-    return db.query(models.SearchIndex).filter(models.SearchIndex.product_id == product_id).first()
 
-def delete_index(db: Session, product_id: int) -> bool:
-    db_index = db.query(models.SearchIndex).filter(models.SearchIndex.product_id == product_id).first()
-    if db_index:
-        db.delete(db_index)
+def get_search_entry(db: Session, entry_id: int):
+    return db.query(SearchIndex).filter(SearchIndex.id == entry_id).first()
+
+
+def get_search_results(db: Session, query: str):
+    return db.query(SearchIndex).filter(
+        (SearchIndex.name.ilike(f"%{query}%")) |
+        (SearchIndex.description.ilike(f"%{query}%")) |
+        (SearchIndex.category.ilike(f"%{query}%"))
+    ).all()
+
+
+def update_search_entry(db: Session, entry_id: int, obj_in: SearchIndexUpdate):
+    db_obj = get_search_entry(db, entry_id)
+    if not db_obj:
+        return None
+    update_data = obj_in.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_obj, key, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+
+def delete_search_entry(db: Session, entry_id: int):
+    db_obj = get_search_entry(db, entry_id)
+    if db_obj:
+        db.delete(db_obj)
         db.commit()
         return True
     return False

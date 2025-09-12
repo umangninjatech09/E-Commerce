@@ -10,5 +10,5 @@ class SearchIndex(Base):
     description = Column(String)
     category = Column(String, index=True)
     price = Column(Float)
-    stock_status = Column(String)
-    rating = Column(Float)
+    entity_type = Column(String, index=True)   # "customer", "product", "inventory", "price"
+    entity_id = Column(Integer, index=True) 

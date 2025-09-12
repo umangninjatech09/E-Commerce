@@ -1,34 +1,18 @@
 from pydantic import BaseModel
-from datetime import datetime
-from typing import Optional, List
+from app.schemas.product import ProductOut
+from typing import Optional
 
-# Price Schemas 
-class PriceCreate(BaseModel):
+class PricingBase(BaseModel):
+    currency: str = "USD"
+    amount: float
+    discount: float = 0.0
+
+class PricingCreate(PricingBase):
     product_id: int
-    base_price: float
 
-class PriceOut(PriceCreate):
+class Pricing(PricingBase):
     id: int
-    product_id: int
-    base_price: float
-    created_at: datetime
+    product: Optional[ProductOut] = None
 
     class Config:
-        from_attributes = True
-
-# Discount Schemas 
-class DiscountCreate(BaseModel):
-    product_id: int
-    discount_percentage: float
-    start_date: datetime
-    end_date: datetime
-
-class DiscountOut(BaseModel):
-    id: int
-    product_id: int
-    discount_percentage: float
-    start_date: datetime
-    end_date: datetime
-
-    class Config:
-        from_attributes = True
+        from_attributes = True  
