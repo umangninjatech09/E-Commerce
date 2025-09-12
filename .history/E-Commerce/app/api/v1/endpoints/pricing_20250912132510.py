@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.crud import pricing as crud_pricing
 from app.schemas import pricing as schemas
 from app.db.session import get_db
-from typing import List
+
 
 router = APIRouter(
     prefix="/pricing",
@@ -14,7 +14,7 @@ router = APIRouter(
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
     return crud_pricing.create_pricing(db, pricing)
 
-@router.get("/", response_model=List[schemas.Pricing])
+@router.get("/", response_model=list[schemas.Pricing])
 def api_list_pricings(db: Session = Depends(get_db)):
     return crud_pricing.get_all_pricings(db)
 

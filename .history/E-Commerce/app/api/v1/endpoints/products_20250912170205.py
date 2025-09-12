@@ -23,7 +23,7 @@ def get_all_products(db: Session = Depends(get_db)):
     products = db.query(Product).all()
     result = []
     for product in products:
-        inventory = db.query(Inventory).filter(Inventory.product_id == product.id).first()
+        inventory = db.query(Inventory).filter(Inventory.product_id == product.id).first(),
         pricing = db.query(Pricing).filter(Pricing.product_id == product.id).first()
 
         result.append({
@@ -34,7 +34,7 @@ def get_all_products(db: Session = Depends(get_db)):
             "category": product.category,
             "brand": product.brand,
             "created_at": product.created_at,
-            "quantity": inventory.quantity if inventory else 0,
+            "quantity": inventory.quantity if inventory else 0
             "amount": pricing.amount if pricing else 0.0
         })
     return result

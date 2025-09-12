@@ -35,7 +35,6 @@ class ProductWithInventory(BaseModel):
     category: Optional[str]
     brand: Optional[str]
     quantity: int   # expects this
-    amount: float
     created_at: datetime
 
 

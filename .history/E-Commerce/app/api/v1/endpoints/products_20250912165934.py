@@ -34,8 +34,7 @@ def get_all_products(db: Session = Depends(get_db)):
             "category": product.category,
             "brand": product.brand,
             "created_at": product.created_at,
-            "quantity": inventory.quantity if inventory else 0,
-            "amount": pricing.amount if pricing else 0.0
+            "quantity": inventory.quantity if inventory else 0
         })
     return result
 

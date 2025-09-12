@@ -14,7 +14,7 @@ router = APIRouter(
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
     return crud_pricing.create_pricing(db, pricing)
 
-@router.get("/", response_model=List[schemas.Pricing])
+@router.get("/", response_model=ist[schemas.Pricing])
 def api_list_pricings(db: Session = Depends(get_db)):
     return crud_pricing.get_all_pricings(db)
 

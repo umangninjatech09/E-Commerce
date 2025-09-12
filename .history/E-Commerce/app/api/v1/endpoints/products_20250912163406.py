@@ -14,7 +14,7 @@ from app.crud.product import (
 from app.db.session import get_db
 from app.models.product import Product
 from app.models.inventory import Inventory
-from app.models.pricing import Pricing
+\
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -24,8 +24,6 @@ def get_all_products(db: Session = Depends(get_db)):
     result = []
     for product in products:
         inventory = db.query(Inventory).filter(Inventory.product_id == product.id).first()
-        pricing = db.query(Pricing).filter(Pricing.product_id == product.id).first()
-
         result.append({
             "id": product.id,
             "name": product.name,
@@ -34,8 +32,7 @@ def get_all_products(db: Session = Depends(get_db)):
             "category": product.category,
             "brand": product.brand,
             "created_at": product.created_at,
-            "quantity": inventory.quantity if inventory else 0,
-            "amount": pricing.amount if pricing else 0.0
+            "inventory_quantity": inventory.stock_quantity if inventory else 0
         })
     return result
 
