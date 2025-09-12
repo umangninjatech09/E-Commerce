@@ -2,22 +2,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+
+
 # Dependency to get DB session
 def get_db():
     db = SessionLocal()
     try:
-        yield db 
+        yield db
     finally:
         db.close()
 
-<<<<<<< HEAD
-DATABASE_URL = "sqlite:///./E-Commerce.db"  
-=======
-DATABASE_URL = "sqlite:///./E-Commerce.db"
->>>>>>> 3f25a2b67d097da477139758635020e20e2f8e9a
+DATABASE_URL = "sqlite:///./E-ommerce.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 Base = declarative_base()
+

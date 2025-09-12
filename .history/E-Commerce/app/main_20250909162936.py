@@ -2,11 +2,7 @@ from fastapi import FastAPI
 from app.db.session import Base, engine
 from app.api.v1.endpoints.products import router as product_router
 from app.api.v1.endpoints.customers import router as customer_router
-<<<<<<< HEAD
-from app.api.v1.endpoints.pricing import router as pricing_router
-=======
 from app.api.v1.endpoints.inventory import router as inventory_router
->>>>>>> 3f25a2b67d097da477139758635020e20e2f8e9a
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -19,4 +15,3 @@ app.include_router(product_router, prefix="/products", tags=["Products"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 
 
-app.include_router(pricing_router, prefix="/pricing", tags=["Pricing"])
