@@ -12,13 +12,12 @@ app = FastAPI(title="Order Service")
 
 # External services
 CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000/customers"
-PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
+PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/"
 
 
 # Dependency: DB session
 def get_db():
     db = database.SessionLocal()
-    try:
         yield db
     finally:
         db.close()

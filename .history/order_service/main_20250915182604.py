@@ -10,9 +10,7 @@ models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="Order Service")
 
-# External services
-CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000/customers"
-PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
+
 
 
 # Dependency: DB session
@@ -27,26 +25,26 @@ def get_db():
 # ------------------------------
 # Helpers to validate external IDs
 # ------------------------------
+import httpx
+
+CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000/customers"
+PRODUCT_SERVICE_URL  = "http://127.0.0.1:8000/products"
+
 async def validate_customer(customer_id: int):
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}")
-            if response.status_code == 200:
-                return response.json()
-        except Exception as e:
-            print("Error calling customer_service:", e)
-    return None
-
+        resp = await client.get(f"{CUSTOMER_SERVICE_URL}/{customer_id}")
+        if resp.status_code == 200:
+            return resp.json()
+        return None
 
 async def validate_product(product_id: int):
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(f"{PRODUCT_SERVICE_URL}/products/{product_id}")
-            if response.status_code == 200:
-                return response.json()
-        except Exception as e:
-            print("Error calling product_service:", e)
-    return None
+        resp = await client.get(f"{PRODUCT_SERVICE_URL}/{product_id}")
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+
+
 
 
 # ------------------------------

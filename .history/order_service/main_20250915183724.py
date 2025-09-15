@@ -107,3 +107,4 @@ async def get_customers_with_orders(db: Session = Depends(get_db)):
         })
 
     return result
+

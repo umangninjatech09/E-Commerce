@@ -107,3 +107,13 @@ async def get_customers_with_orders(db: Session = Depends(get_db)):
         })
 
     return result
+
+"""
+Today's Work Update :-
+AI Enquiry		
+- Testing in AIEnquiry for Section 1	
+
+E-Commerce Product Catalog System with microservices		
+- Work on error response on all services and implement	
+- Working on order service 	
+"""

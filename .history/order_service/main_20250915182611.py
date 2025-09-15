@@ -29,24 +29,18 @@ def get_db():
 # ------------------------------
 async def validate_customer(customer_id: int):
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}")
-            if response.status_code == 200:
-                return response.json()
-        except Exception as e:
-            print("Error calling customer_service:", e)
+        response = await client.get(f"{CUSTOMER_SERVICE_URL}/{customer_id}")
+        if response.status_code == 200:
+            return response.json()
     return None
-
 
 async def validate_product(product_id: int):
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(f"{PRODUCT_SERVICE_URL}/products/{product_id}")
-            if response.status_code == 200:
-                return response.json()
-        except Exception as e:
-            print("Error calling product_service:", e)
+        response = await client.get(f"{PRODUCT_SERVICE_URL}/{product_id}")
+        if response.status_code == 200:
+            return response.json()
     return None
+
 
 
 # ------------------------------
