@@ -30,7 +30,7 @@ def register(customer: CustomerCreate, db: Session = Depends(get_db)):
 def login(customer: CustomerLogin, db: Session = Depends(get_db)):
     db_customer = crud_customer.authenticate_customer(db, customer.email, customer.password)
     if not db_customer:
-         return error_response(401, "Invalid credentials", "The email or password provided is incorrect.")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": db_customer.email}, expires_delta=access_token_expires
