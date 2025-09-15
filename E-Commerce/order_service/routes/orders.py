@@ -30,6 +30,7 @@ def read_order(order_id: int, db: Session = Depends(get_db)):
     return db_order
 
 
+
 @router.put("/{order_id}", response_model=schemas.OrderResponse)
 def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = Depends(get_db)):
     db_order = crud.update_order(db, order_id=order_id, order=order)
