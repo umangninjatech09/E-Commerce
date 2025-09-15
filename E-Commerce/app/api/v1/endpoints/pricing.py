@@ -4,6 +4,8 @@ from app.crud import pricing as crud_pricing
 from app.schemas import pricing as schemas
 from app.db.session import get_db
 from typing import List
+from app.utils.response_builder import error_response
+from app.models.product import Product
 
 router = APIRouter(
     prefix="/pricing",
@@ -12,6 +14,9 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.Pricing)
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
+    product = db.query(Product).filter(Product.id == pricing.product_id).first()
+    if not product:
+        return error_response(404, "ProductNotFound", f"Cannot create pricing: product_id={pricing.product_id} does not exist.")
     return crud_pricing.create_pricing(db, pricing)
 
 @router.get("/", response_model=List[schemas.Pricing])
@@ -22,26 +27,26 @@ def api_list_pricings(db: Session = Depends(get_db)):
 def api_get_pricing(pricing_id: int, db: Session = Depends(get_db)):
     db_pricing = crud_pricing.get_pricing_by_id(db, pricing_id)
     if not db_pricing:
-        raise HTTPException(status_code=404, detail="Pricing not found")
+        return error_response(404, "PricingNotFound", f"Pricing with id {pricing_id} not found.")
     return db_pricing
 
 @router.get("/product/{product_id}", response_model=schemas.Pricing)
 def get_pricing_by_product(product_id: int, db: Session = Depends(get_db)):
     db_pricing = crud_pricing.get_pricing_by_product(db, product_id)
     if not db_pricing:
-        raise HTTPException(status_code=404, detail="Pricing not found")
+        return error_response(404, "PricingNotFound", f"Pricing for product_id {product_id} not found.")
     return db_pricing
 
 @router.put("/{pricing_id}", response_model=schemas.Pricing)
 def update_pricing(pricing_id: int, data: schemas.PricingCreate, db: Session = Depends(get_db)):
     db_pricing = crud_pricing.update_pricing(db, pricing_id, data)
     if not db_pricing:
-        raise HTTPException(status_code=404, detail="Pricing not found")
+        return error_response(404, "PricingNotFound", f"Cannot update: pricing record with id={pricing_id} was not found.")
     return db_pricing
 
 @router.delete("/{pricing_id}")
 def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
     deleted = crud_pricing.delete_pricing(db, pricing_id)
     if not deleted:
-        raise HTTPException(status_code=404, detail="Pricing not found")
+        return error_response(404, "PricingNotFound", f"Cannot delete: pricing record with id={pricing_id} was not found.")
     return {"detail": "Pricing deleted successfully"}
