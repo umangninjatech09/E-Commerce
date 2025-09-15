@@ -5,6 +5,7 @@ from typing import List
 from app.db.session import get_db
 from app.schemas import pricing as schemas
 from app.crud import pricing as crud
+from app.utils.response_builder import error_response
 
 router = APIRouter()
 
