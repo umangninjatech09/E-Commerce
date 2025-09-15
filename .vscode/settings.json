@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./E-Commerce/app",
+        "./E-Commerce"
+    ]
+}
