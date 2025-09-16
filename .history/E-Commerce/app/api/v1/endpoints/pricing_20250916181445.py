@@ -3,12 +3,11 @@ from sqlalchemy.orm import Session
 from app.crud import pricing as crud_pricing
 from app.schemas import pricing as schemas
 from app.db.session import get_db
-from typing import List
-from app.utils.response_builder import error_response
-import app.models as models
-from app.models.product import Product
 
-router = APIRouter(prefix="/pricing", tags=["Pricing"])
+router = APIRouter(
+    prefix="/pricing",
+    tags=["Pricing"]
+)
 
 @router.post("/", response_model=schemas.Pricing)
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):

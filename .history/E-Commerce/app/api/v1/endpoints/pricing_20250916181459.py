@@ -8,7 +8,12 @@ from app.utils.response_builder import error_response
 import app.models as models
 from app.models.product import Product
 
-router = APIRouter(prefix="/pricing", tags=["Pricing"])
+
+
+
+
+router = APIRouter(prefix="/pricing", tags=["Pricing"]
+)
 
 @router.post("/", response_model=schemas.Pricing)
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
