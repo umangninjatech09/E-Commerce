@@ -40,7 +40,7 @@ def login(customer: CustomerLogin, db: Session = Depends(get_db)):
 
 @router.get("/customers/", response_model=List[CustomerResponse])
 def list_customers(db: Session = Depends(get_db)):
-    customers = crud_customer.get_all_customers(db)
+customers = crud_customer.get_all_customers(db)
     if not customers:
         return error_response(404, "Not Found", "No customers found")
     return customers    

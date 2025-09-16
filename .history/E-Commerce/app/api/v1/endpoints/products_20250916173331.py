@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
-from app.schemas.product import ProductCreate, ProductOut, ProductUpdate, ProductWithInventory
+from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 from app.crud.product import (
     create_product,
     get_all_products,
@@ -12,9 +12,6 @@ from app.crud.product import (
     get_product
 )
 from app.db.session import get_db
-from app.models.product import Product
-from app.models.inventory import Inventory
-from app.models.pricing import Pricing
 from app.utils.response_builder import error_response
 
 router = APIRouter(prefix="/products", tags=["Products"])

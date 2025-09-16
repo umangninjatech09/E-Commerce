@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
-from app.schemas.product import ProductCreate, ProductOut, ProductUpdate, ProductWithInventory
+from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 from app.crud.product import (
     create_product,
     get_all_products,
@@ -12,33 +12,9 @@ from app.crud.product import (
     get_product
 )
 from app.db.session import get_db
-from app.models.product import Product
-from app.models.inventory import Inventory
-from app.models.pricing import Pricing
 from app.utils.response_builder import error_response
 
 router = APIRouter(prefix="/products", tags=["Products"])
-
-@router.get("/all", response_model=List[ProductWithInventory])
-def get_all_products(db: Session = Depends(get_db)):
-    products = db.query(Product).all()
-    result = []
-    for product in products:
-        inventory = db.query(Inventory).filter(Inventory.product_id == product.id).first()
-        pricing = db.query(Pricing).filter(Pricing.product_id == product.id).first()
-
-        result.append({
-            "id": product.id,
-            "name": product.name,
-            "description": product.description,
-            "sku": product.sku,
-            "category": product.category,
-            "brand": product.brand,
-            "created_at": product.created_at,
-            "quantity": inventory.quantity if inventory else 0,
-            "amount": pricing.amount if pricing else 0.0
-        })
-    return result
 
 @router.get("/{product_id}", response_model=ProductOut)
 def api_get_product(product_id: int, db: Session = Depends(get_db)):
@@ -51,7 +27,7 @@ def api_get_product(product_id: int, db: Session = Depends(get_db)):
 def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     existing = get_product_by_sku(db, payload.sku)
     if existing:
-        return error_response(400, "DuplicateSKU", "A product with this SKU already exists.")
+        raise HTTPException(status_code=400, detail="SKU already exists")
     return create_product(db, payload)
 
 @router.get("/", response_model=List[ProductOut])
