@@ -1,44 +1,65 @@
 from sqlalchemy.orm import Session
 from app.models.search import SearchIndex
-from app.schemas.search import SearchIndexCreate, SearchIndexUpdate
+from app.schemas.search import SearchCreate, SearchUpdate
+from typing import List, Optional
 
 
-def create_search_entry(db: Session, obj_in: SearchIndexCreate):
-    db_obj = SearchIndex(**obj_in.dict())
-    db.add(db_obj)
+# ✅ Create (with duplicate check)
+def create_search_index(db: Session, search: SearchCreate) -> SearchIndex:
+    existing = db.query(SearchIndex).filter(SearchIndex.product_id == search.product_id).first()
+    if existing:
+        return existing  
+
+    entry = SearchIndex(**search.dict())
+    db.add(entry)
     db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    db.refresh(entry)
+    return entry
 
 
-def get_search_entry(db: Session, entry_id: int):
-    return db.query(SearchIndex).filter(SearchIndex.id == entry_id).first()
+# ✅ Read (by product_id)
+def get_search_index(db: Session, product_id: int) -> Optional[SearchIndex]:
+    return db.query(SearchIndex).filter(SearchIndex.product_id == product_id).first()
 
 
-def get_search_results(db: Session, query: str):
+# ✅ Update (by product_id)
+def update_search_index(db: Session, product_id: int, search: SearchUpdate) -> Optional[SearchIndex]:
+    entry = db.query(SearchIndex).filter(SearchIndex.product_id == product_id).first()
+    if not entry:
+        return None
+    for key, value in search.dict(exclude_unset=True).items():
+        setattr(entry, key, value)
+    db.commit()
+    db.refresh(entry)
+    return entry
+
+
+# ✅ Delete (by product_id)
+def delete_search_index(db: Session, product_id: int) -> Optional[SearchIndex]:
+    entry = db.query(SearchIndex).filter(SearchIndex.product_id == product_id).first()
+    if entry:
+        db.delete(entry)
+        db.commit()
+    return entry
+
+
+# ✅ Get all entries
+def get_all_search_entries(db: Session) -> List[SearchIndex]:
+    return db.query(SearchIndex).all()
+
+
+# ✅ Search by keyword (name, description, category)
+def search_entries(db: Session, keyword: str) -> List[SearchIndex]:
     return db.query(SearchIndex).filter(
-        (SearchIndex.name.ilike(f"%{query}%")) |
-        (SearchIndex.description.ilike(f"%{query}%")) |
-        (SearchIndex.category.ilike(f"%{query}%"))
+        (SearchIndex.name.ilike(f"%{keyword}%")) |
+        (SearchIndex.description.ilike(f"%{keyword}%")) |
+        (SearchIndex.category.ilike(f"%{keyword}%"))
     ).all()
 
 
-def update_search_entry(db: Session, entry_id: int, obj_in: SearchIndexUpdate):
-    db_obj = get_search_entry(db, entry_id)
-    if not db_obj:
-        return None
-    update_data = obj_in.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_obj, key, value)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
-
-
-def delete_search_entry(db: Session, entry_id: int):
-    db_obj = get_search_entry(db, entry_id)
-    if db_obj:
-        db.delete(db_obj)
-        db.commit()
-        return True
-    return False
+# ✅ Get by entity type (customer, inventory, pricing, product)
+def get_by_entity(db: Session, entity_type: str, entity_id: int) -> Optional[SearchIndex]:
+    return db.query(SearchIndex).filter(
+        SearchIndex.entity_type == entity_type,
+        SearchIndex.entity_id == entity_id
+    ).first()

@@ -1,14 +1,28 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 
 class SearchIndex(Base):
     __tablename__ = "search_index"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, unique=True, index=True)
+
+    # Foreign keys
+    product_id = Column(Integer, ForeignKey("products.id"), index=True, nullable=True)
+    customer_id = Column(Integer, ForeignKey("customers.id"), index=True, nullable=True)
+    inventory_id = Column(Integer, ForeignKey("inventory.id"), index=True, nullable=True)
+    pricing_id = Column(Integer, ForeignKey("pricing.id"), index=True, nullable=True)
+
+    # Search fields
     name = Column(String, index=True)
     description = Column(String)
     category = Column(String, index=True)
     price = Column(Float)
     entity_type = Column(String, index=True)   # "customer", "product", "inventory", "price"
-    entity_id = Column(Integer, index=True) 
+    entity_id = Column(Integer, index=True)
+
+    # Relationships
+    product = relationship("Product", back_populates="search_index")
+    customer = relationship("Customer", back_populates="search_index")
+    inventory = relationship("Inventory", back_populates="search_index")
+    pricing = relationship("Pricing", back_populates="search_index")
