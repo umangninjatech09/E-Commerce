@@ -10,6 +10,8 @@ from app.utils.response_builder import error_response
 
 router = APIRouter()
 
+
+
 @router.post("/register", response_model=CustomerResponse)
 def register(customer: CustomerCreate, db: Session = Depends(get_db)):
     db_customer = crud_customer.get_customer_by_email(db, email=customer.email)
