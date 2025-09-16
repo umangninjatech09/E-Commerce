@@ -6,7 +6,7 @@ from app.schemas.customer import CustomerCreate, CustomerLogin, CustomerResponse
 from app.crud import customer as crud_customer
 from app.utils.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_password_hash
 from app.utils.response_builder import error_response
-from app.db.session import get_db
+from app.api.dependencies import get_db
 
 
 router = APIRouter()
