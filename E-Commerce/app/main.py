@@ -9,6 +9,7 @@ from app.api.v1.endpoints.inventory import router as inventory_router
 # Create tables
 Base.metadata.create_all(bind=engine)
 
+
 app = FastAPI(title="E-Commerce Product Catalog System")
 
 app.include_router(product_router, prefix="/products", tags=["Products"])
