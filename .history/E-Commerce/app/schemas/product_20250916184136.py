@@ -42,4 +42,14 @@ class ProductWithInventory(BaseModel):
     class Config:
         from_attributes = True
         
+'''
 
+'''        
+Today's Work Update :-
+
+E-Commerce Product Catalog System with microservices        
+
+Work on error response on order service
+Work on order service update schemas, Apis and models
+Order service integration with other related services
+Test Api of order service

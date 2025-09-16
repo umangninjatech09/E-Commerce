@@ -42,4 +42,6 @@ class ProductWithInventory(BaseModel):
     class Config:
         from_attributes = True
         
+'''
 
+'''        
