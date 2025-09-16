@@ -17,6 +17,14 @@ def get_db():
     finally:
         db.close()
 
+@router.get("/{customer_id}", response_model=CustomerResponse)
+def get_customer(customer_id: int, db: Session = Depends(get_db)):
+    db_customer = crud_customer.get_customer(db, customer_id=customer_id)
+    if not db_customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return db_customer
+
+
 @router.post("/register", response_model=CustomerResponse)
 def register(customer: CustomerCreate, db: Session = Depends(get_db)):
     db_customer = crud_customer.get_customer_by_email(db, email=customer.email)
@@ -34,3 +42,4 @@ def login(customer: CustomerLogin, db: Session = Depends(get_db)):
         data={"sub": db_customer.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
