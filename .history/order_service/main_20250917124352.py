@@ -104,7 +104,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
 
     inventory = await update_inventory(order.product_id, order.quantity)
     if not inventory:
-        return error_response(400, "InventoryError", "Insufficient inventory or product not found")
+        raise HTTPException(status_code=400, detail="Insufficient inventory or product not found")
     
     new_order = models.Order(
         customer_id=order.customer_id,
