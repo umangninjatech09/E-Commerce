@@ -4,14 +4,13 @@ from app.crud import pricing as crud_pricing
 from app.schemas import pricing as schemas
 from app.db.session import get_db
 from typing import List
-<<<<<<< HEAD
-=======
 from app.utils.response_builder import error_response
-import app.models as models
 from app.models.product import Product
->>>>>>> ae72c43f592b621ac28d8fbc0b5b78ea3ecfee3c
 
-router = APIRouter(prefix="/pricing", tags=["Pricing"])
+router = APIRouter(
+    prefix="/pricing",
+    tags=["Pricing"]
+)
 
 @router.post("/", response_model=schemas.Pricing)
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):

@@ -9,4 +9,8 @@ def error_response(status_code: int, error: str, message: str):
             "error": error,
             "message": message,
         },
+<<<<<<< HEAD
     )
+=======
+    )
+>>>>>>> 91a3d0d74daa07f71f175cdfc49d5698377b8950

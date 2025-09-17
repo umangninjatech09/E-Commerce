@@ -5,6 +5,7 @@ from app.db.session import SessionLocal
 from app.schemas.customer import CustomerCreate, CustomerLogin, CustomerResponse
 from app.crud import customer as crud_customer
 from app.utils.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_password_hash
+<<<<<<< HEAD
 from app.db.session import get_db
 from typing import List
 from app.utils.response_builder import error_response
@@ -20,6 +21,14 @@ def get_customer(customer_id: int, db: Session = Depends(get_db)):
     return db_customer
 
 
+=======
+from app.utils.response_builder import error_response
+from app.db.session import get_db
+
+
+router = APIRouter()
+
+>>>>>>> 91a3d0d74daa07f71f175cdfc49d5698377b8950
 @router.post("/register", response_model=CustomerResponse)
 def register(customer: CustomerCreate, db: Session = Depends(get_db)):
     db_customer = crud_customer.get_customer_by_email(db, email=customer.email)
