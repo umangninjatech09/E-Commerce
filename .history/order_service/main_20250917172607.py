@@ -3,6 +3,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from order_service import models, schemas, crud, database
 from typing import List
+from app.utils.response_builder import error_response
+from app
 
 
 # Create tables
@@ -83,17 +85,17 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     # Validate customer
     customer = await validate_customer(order.customer_id)
     if not customer:
-        return HTTPException(400, "InvalidCustomer", "The customer ID provided is invalid.")
+        return error_response(400, "InvalidCustomer", "The customer ID provided is invalid.")
 
     # Validate product
     product = await validate_product(order.product_id)
     if not product:
-        return HTTPException(400, "InvalidProduct", "The product ID provided is invalid.")
+        return error_response(400, "InvalidProduct", "The product ID provided is invalid.")
 
     # ✅ Validate pricing
     pricing = await validate_pricing(order.product_id)
     if not pricing:
-        return HTTPException(400, "PricingNotFound", f"No pricing found for product_id={order.product_id}")
+        return error_response(400, "PricingNotFound", f"No pricing found for product_id={order.product_id}")
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
@@ -103,7 +105,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
 
     inventory = await update_inventory(order.product_id, order.quantity)
     if not inventory:
-        return HTTPException(400, "InventoryError", "Insufficient inventory or product not found")
+        return error_response(400, "InventoryError", "Insufficient inventory or product not found")
     
     new_order = models.Order(
         customer_id=order.customer_id,

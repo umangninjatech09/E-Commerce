@@ -88,12 +88,12 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     # Validate product
     product = await validate_product(order.product_id)
     if not product:
-        return HTTPException(400, "InvalidProduct", "The product ID provided is invalid.")
+        return error_response(400, "InvalidProduct", "The product ID provided is invalid.")
 
     # ✅ Validate pricing
     pricing = await validate_pricing(order.product_id)
     if not pricing:
-        return HTTPException(400, "PricingNotFound", f"No pricing found for product_id={order.product_id}")
+        return error_response(400, "PricingNotFound", f"No pricing found for product_id={order.product_id}")
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
@@ -103,7 +103,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
 
     inventory = await update_inventory(order.product_id, order.quantity)
     if not inventory:
-        return HTTPException(400, "InventoryError", "Insufficient inventory or product not found")
+        return error_response(400, "InventoryError", "Insufficient inventory or product not found")
     
     new_order = models.Order(
         customer_id=order.customer_id,
