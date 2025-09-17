@@ -12,12 +12,11 @@ router = APIRouter()
 @router.post("/", response_model=SupplierOut)
 def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
     return crud_supplier.create_supplier(db, supplier)
-
-
+    
 @router.get("/", response_model=List[SupplierOut])
-def read_suppliers(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud_supplier.get_suppliers(db, skip=skip, limit=limit)
-
+def read_suppliers(db: Session = Depends(get_db)):
+    suppliers = crud_supplier.get_suppliers(db)
+    return suppliers
 
 @router.get("/{supplier_id}", response_model=SupplierOut)
 def read_supplier(supplier_id: int, db: Session = Depends(get_db)):
