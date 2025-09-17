@@ -7,6 +7,12 @@ from typing import List
 from app.utils.response_builder import error_response
 import app.models as models
 from app.models.product import Product
+from fastapi import Query
+from app.utils.pagination import paginate
+from app.schemas.common import Page
+from app.models.pricing import Pricing
+
+
 
 router = APIRouter(prefix="/pricing", tags=["Pricing"])
 
@@ -17,9 +23,14 @@ def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get
         return error_response(404, "ProductNotFound", f"Cannot create pricing: product_id={pricing.product_id} does not exist.")
     return crud_pricing.create_pricing(db, pricing)
 
-@router.get("/", response_model=List[schemas.Pricing])
-def api_list_pricings(db: Session = Depends(get_db)):
-    return crud_pricing.get_all_pricings(db)
+@router.get("/", response_model=Page[schemas.Pricing])
+def api_list_pricings(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100)
+):
+    query = db.query(Pricing)
+    return paginate(query, page, size)
 
 @router.get("/{pricing_id}", response_model=schemas.Pricing)
 def api_get_pricing(pricing_id: int, db: Session = Depends(get_db)):
