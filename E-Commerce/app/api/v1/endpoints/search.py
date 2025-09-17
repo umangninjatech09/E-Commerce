@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.db.session import get_db
 from app.schemas.search import SearchCreate, SearchUpdate, SearchOut
 from app.crud import search as crud_search
@@ -36,6 +36,11 @@ def delete_search(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Search entry not found")
     return {"message": "Deleted successfully"}
 
-@router.get("/search-text/{query}", response_model=List[SearchOut])
-def search_text(query: str, db: Session = Depends(get_db)):
-    return crud_search.search_text(db, query)
+@router.get("/search-text/", response_model=list[SearchOut])
+def search_text(
+    q: str = Query(..., description="Search keyword"),
+    min_price: Optional[float] = Query(None, description="Minimum price filter"),
+    max_price: Optional[float] = Query(None, description="Maximum price filter"),
+    db: Session = Depends(get_db),
+):
+    return crud_search.search_text(db, query=q, min_price=min_price, max_price=max_price)

@@ -6,9 +6,7 @@ from app.api.v1.endpoints.pricing import router as pricing_router
 from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.inventory import router as inventory_router
 
-# Create tables
 Base.metadata.create_all(bind=engine)
-
 
 app = FastAPI(title="E-Commerce Product Catalog System")
 

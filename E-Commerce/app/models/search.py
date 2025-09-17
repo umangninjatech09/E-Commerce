@@ -8,6 +8,7 @@ class SearchIndex(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String)
+    price = Column(Float)
     product_id = Column(Integer, ForeignKey("products.id"), index=True, nullable=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), index=True, nullable=True)
     inventory_id = Column(Integer, ForeignKey("inventory.id"), index=True, nullable=True)

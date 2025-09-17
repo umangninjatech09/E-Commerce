@@ -43,12 +43,23 @@ def delete_search_index(db: Session, id: int):
     db.commit()
     return True
 
-def search_text(db: Session, query: str):
-    entries = db.query(SearchIndex).filter(SearchIndex.name.ilike(f"%{query}%")).all()
+
+def search_text(db: Session, query: str, min_price=None, max_price=None, category=None, entity=None):
+    qset = db.query(SearchIndex).filter(SearchIndex.name.ilike(f"%{query}%"))
+
+    if min_price is not None:
+        qset = qset.filter(SearchIndex.price >= min_price)
+
+    if max_price is not None:
+        qset = qset.filter(SearchIndex.price <= max_price)
+
+
+    entries = qset.all()
+
     for e in entries:
         e.product = e.product or db.query(Product).filter(Product.id == e.product_id).first()
         e.customer = e.customer or db.query(Customer).filter(Customer.id == e.customer_id).first()
         e.inventory = e.inventory or db.query(Inventory).filter(Inventory.id == e.inventory_id).first()
         e.pricing = e.pricing or db.query(Pricing).filter(Pricing.id == e.pricing_id).first()
-    return entries
 
+    return entries
