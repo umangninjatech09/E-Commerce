@@ -3,7 +3,6 @@ from app.db.session import Base, engine
 from app.api.v1.endpoints.products import router as product_router
 from app.api.v1.endpoints.customers import router as customer_router
 from app.api.v1.endpoints.pricing import router as pricing_router
-from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.inventory import router as inventory_router
 
 # Create tables
@@ -16,5 +15,4 @@ app.include_router(customer_router, prefix="/customers", tags=["Customers"])
 app.include_router(product_router, prefix="/products", tags=["Products"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 app.include_router(pricing_router, prefix="/pricing", tags=["Pricing"])
-app.include_router(search_router, prefix="/search", tags=["Search"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
