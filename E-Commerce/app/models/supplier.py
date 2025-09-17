@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.sql import func
 from app.db.session import Base
+from sqlalchemy.orm import relationship
 
 
 class Supplier(Base):
@@ -14,3 +15,5 @@ class Supplier(Base):
     status = Column(Enum("active", "inactive", name="supplier_status"), default="active", nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    purchases = relationship("Purchase", back_populates="supplier")

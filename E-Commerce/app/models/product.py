@@ -16,3 +16,4 @@ class Product(Base):
     # pricings = relationship("Pricing", back_populates="product")
     pricings = relationship("Pricing", back_populates="product", cascade="all, delete")
     inventory = relationship("Inventory", back_populates="product", uselist=False)
+    purchases = relationship("Purchase", back_populates="product")
