@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models import inventory as models
 from app.schemas import inventory as schemas
+from app.crud import inventory as crud_inventory
 
 def create_inventory(db: Session, inventory: schemas.InventoryCreate):
     db_item = models.Inventory(**inventory.dict())
@@ -22,3 +23,9 @@ def update_inventory(db: Session, product_id: int, qty: int):
 
 def get_all_inventory(db: Session):
     return db.query(models.Inventory).all()
+
+def get_inventory_limit(db: Session, skip: int = 0, limit: int = 10):
+    query = db.query(models.Inventory)
+    total = query.count()
+    products = query.offset(skip).limit(limit).all()
+    return total, products
