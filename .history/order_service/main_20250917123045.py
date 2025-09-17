@@ -109,7 +109,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
         product_id=order.product_id,
         quantity=order.quantity,
         total_amount=total_amount,
-        status="delivered" 
+        
     )
     db.add(new_order)
     db.commit()
