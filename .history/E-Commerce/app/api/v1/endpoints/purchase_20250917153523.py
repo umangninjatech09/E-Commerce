@@ -1,0 +1,17 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.schemas.purchase import Purchase, PurchaseCreate
+from app.crud.purchase import create_purchase, get_all_purchase, get_purchases 
+from app.db.session import get_db
+from typing import List
+
+router = APIRouter()
+
+
+@router.post("/", response_model=Purchase)
+def create_purchase(purchase: PurchaseCreate, db: Session = Depends(get_db)):
+    return create_purchase(db, purchase)
+
+@router.get("/", response_model=List[Purchase])
+def list_purchase(db: Session = Depends(get_db)):
+    return get_all_purchase(db)
