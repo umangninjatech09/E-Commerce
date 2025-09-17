@@ -29,7 +29,7 @@ def update_inventory(product_id: int, inv_update: schemas.InventoryUpdate, db: S
 
 @router.get("/products/", response_model=InventoryPagination)
 def get_inventory_limit(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    total, products = crud.get_products(db, skip=(page-1)*limit, limit=limit)
+    total, products = crud.get_inventory_limit(db, skip=(page-1)*limit, limit=limit)
     
     # Calculate total pages
     total_pages = (total + limit - 1) // limit if total > 0 else 1

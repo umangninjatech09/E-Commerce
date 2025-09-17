@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Generic, List, Optional, TypeVar
+from pydantic.generics import GenericModel
 
 class ErrorResponse(BaseModel):
     success: bool = False
@@ -7,11 +8,8 @@ class ErrorResponse(BaseModel):
     error: str
     message: str
 
-from typing import Generic, TypeVar, List, Optional
-from pydantic import BaseModel
-from pydantic.generics import GenericModel
-
-T = TypeVar("T")  # This allows the items type to be dynamic
+# Pagination
+T = TypeVar("T")
 
 class PaginationResponse(GenericModel, Generic[T]):
     total_records: int

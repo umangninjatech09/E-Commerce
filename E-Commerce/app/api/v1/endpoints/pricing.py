@@ -54,7 +54,7 @@ def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
 
 @router.get("/products/", response_model=PricingPagination)
 def get_pricing_limit(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    total, products = crud_pricing.get_products(db, skip=(page-1)*limit, limit=limit)
+    total, products = crud_pricing.get_pricing_limit(db, skip=(page-1)*limit, limit=limit)
     
     # Calculate total pages
     total_pages = (total + limit - 1) // limit if total > 0 else 1

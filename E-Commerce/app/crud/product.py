@@ -48,3 +48,4 @@ def get_products(db: Session, skip: int = 0, limit: int = 10):
     total = query.count()
     products = query.offset(skip).limit(limit).all()
     return total, products
+
