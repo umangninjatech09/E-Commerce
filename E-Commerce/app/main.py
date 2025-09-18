@@ -12,10 +12,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="E-Commerce Product Catalog System")
 
-app.include_router(product_router, prefix="/products", tags=["Products"])
 app.include_router(customer_router, prefix="/customers", tags=["Customers"])
 app.include_router(product_router, prefix="/products", tags=["Products"])
 app.include_router(pricing_router, prefix="/pricing", tags=["Pricing"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 app.include_router(supplier_router, prefix="/supplier", tags=["Supplier"])
 app.include_router(purchase_router, prefix="/purchase", tags=["Purchase"])
+app.include_router(search_router, prefix="/search", tags=["Search"])

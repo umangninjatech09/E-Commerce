@@ -3,24 +3,16 @@ from sqlalchemy.orm import Session
 from app.schemas import inventory as schemas
 from app.crud import inventory as crud
 from app.utils.response_builder import error_response
-<<<<<<< HEAD
-from app.schemas.inventory import InventoryPagination
-
-from app.db.session import get_db
-=======
 from fastapi import Query
 from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.models.inventory import Inventory
+from app.db.session import get_db
 
 router = APIRouter( tags=["Inventory"])
->>>>>>> feature/purchase-service
 
 router = APIRouter()
 
-<<<<<<< HEAD
-@router.post("/inventory/", response_model=schemas.InventoryResponse)
-=======
 @router.get("/", response_model=Page[schemas.InventoryResponse])
 def list_inventory(
     db: Session = Depends(get_db),
@@ -32,7 +24,6 @@ def list_inventory(
 
 
 @router.post("/", response_model=schemas.InventoryResponse)
->>>>>>> feature/purchase-service
 def create_inventory(inventory: schemas.InventoryCreate, db: Session = Depends(get_db)):
     return crud.create_inventory(db, inventory)
 
@@ -50,31 +41,3 @@ def update_inventory(product_id: int, inv_update: schemas.InventoryUpdate, db: S
         return error_response(404, "InventoryNotFound", f"Cannot update: inventory record for product_id={product_id} was not found.")
     return updated_item
 
-@router.get("/products/", response_model=InventoryPagination)
-def get_inventory_limit(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    total, products = crud.get_inventory_limit(db, skip=(page-1)*limit, limit=limit)
-    
-    # Calculate total pages
-    total_pages = (total + limit - 1) // limit if total > 0 else 1
-
-    # Validate page number
-    if page < 1 or page > total_pages:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid page number. Total available pages: {total_pages}"
-        )
-
-    # Calculate previous and next page numbers
-    prev_page = page - 1 if page > 1 else None
-    next_page = page + 1 if page < total_pages else None
-
-    # Return structured pagination response
-    return {
-        "total_records": total,
-        "total_pages": total_pages,
-        "current_page": page,
-        "prev_page": prev_page,
-        "next_page": next_page,
-        "limit": limit,
-        "items": products
-    }

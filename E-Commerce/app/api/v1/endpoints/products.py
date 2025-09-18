@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from sqlalchemy.orm import Session
 from app.crud import product as crud_product
-from app.schemas.product import ProductCreate, ProductOut, ProductUpdate, ProductPagination
+from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 from app.crud.product import (
     create_product,
     get_all_products,
@@ -16,13 +16,11 @@ from app.utils.response_builder import error_response
 from fastapi import Query
 from app.utils.pagination import paginate
 from app.schemas.common import Page
+from app.models.product import Product
+ 
 
 
-<<<<<<< HEAD
-router = APIRouter(prefix="/products", tags=["Products"])
-=======
 router = APIRouter(tags=["Products"])
->>>>>>> feature/purchase-service
 
 @router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -62,31 +60,3 @@ def api_delete_product(product_id: int, db: Session = Depends(get_db)):
     return {"message": "Product deleted successfully"}
 
 
-@router.get("/products/", response_model=ProductPagination)
-def get_products(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
-    total, products = crud_product.get_products(db, skip=(page-1)*limit, limit=limit)
-    
-    # Calculate total pages
-    total_pages = (total + limit - 1) // limit if total > 0 else 1
-
-    # Validate page number
-    if page < 1 or page > total_pages:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid page number. Total available pages: {total_pages}"
-        )
-
-    # Calculate previous and next page numbers
-    prev_page = page - 1 if page > 1 else None
-    next_page = page + 1 if page < total_pages else None
-
-    # Return structured pagination response
-    return {
-        "total_records": total,
-        "total_pages": total_pages,
-        "current_page": page,
-        "prev_page": prev_page,
-        "next_page": next_page,
-        "limit": limit,
-        "items": products
-    }

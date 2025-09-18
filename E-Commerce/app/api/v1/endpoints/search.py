@@ -11,7 +11,7 @@ router = APIRouter(prefix="/search", tags=["Search"])
 def create_search(search: SearchCreate, db: Session = Depends(get_db)):
     return crud_search.create_search_index(db, search)
 
-@router.get("/", response_model=list[SearchOut])
+@router.get("/", response_model=List[SearchOut])
 def read_search(db: Session = Depends(get_db)):
     return crud_search.get_all_search_indexes(db)
 
@@ -36,7 +36,7 @@ def delete_search(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Search entry not found")
     return {"message": "Deleted successfully"}
 
-@router.get("/search-text/", response_model=list[SearchOut])
+@router.get("/search-text/", response_model=List[SearchOut])
 def search_text(
     q: str = Query(..., description="Search keyword"),
     min_price: Optional[float] = Query(None, description="Minimum price filter"),
