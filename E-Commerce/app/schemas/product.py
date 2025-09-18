@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ProductBase(BaseModel):
@@ -41,3 +41,14 @@ class ProductWithInventory(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ProductPagination(BaseModel):
+    total_records: int
+    total_pages: int
+    current_page: int
+    prev_page: Optional[int]
+    next_page: Optional[int]
+    limit: int
+    items: List[ProductOut]
+    

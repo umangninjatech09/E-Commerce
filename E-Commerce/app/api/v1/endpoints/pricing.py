@@ -6,6 +6,7 @@ from app.db.session import get_db
 from typing import List
 from app.utils.response_builder import error_response
 from app.models.product import Product
+from app.schemas.pricing import PricingPagination
 
 router = APIRouter(
     prefix="/pricing",
@@ -50,3 +51,32 @@ def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
     if not deleted:
         return error_response(404, "PricingNotFound", f"Cannot delete: pricing record with id={pricing_id} was not found.")
     return {"detail": "Pricing deleted successfully"}
+
+@router.get("/products/", response_model=PricingPagination)
+def get_pricing_limit(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+    total, products = crud_pricing.get_pricing_limit(db, skip=(page-1)*limit, limit=limit)
+    
+    # Calculate total pages
+    total_pages = (total + limit - 1) // limit if total > 0 else 1
+
+    # Validate page number
+    if page < 1 or page > total_pages:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid page number. Total available pages: {total_pages}"
+        )
+
+    # Calculate previous and next page numbers
+    prev_page = page - 1 if page > 1 else None
+    next_page = page + 1 if page < total_pages else None
+
+    # Return structured pagination response
+    return {
+        "total_records": total,
+        "total_pages": total_pages,
+        "current_page": page,
+        "prev_page": prev_page,
+        "next_page": next_page,
+        "limit": limit,
+        "items": products
+    }

@@ -11,3 +11,4 @@ class Inventory(Base):
     
 
     product = relationship("Product", back_populates="inventory")
+    search_index = relationship("SearchIndex", back_populates="inventory")

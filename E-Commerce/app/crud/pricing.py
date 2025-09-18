@@ -1,10 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.pricing import Pricing
 from app.schemas.pricing import PricingCreate
-
-from sqlalchemy.orm import Session
-from app.models.pricing import Pricing
-from app.schemas.pricing import PricingCreate
+from app.crud import pricing as crud_pricing 
 
 def create_pricing(db: Session, pricing: PricingCreate):
     db_pricing = Pricing(**pricing.dict())
@@ -39,3 +36,9 @@ def delete_pricing(db: Session, pricing_id: int):
         db.commit()
         return True
     return False
+
+def get_pricing_limit(db: Session, skip: int = 0, limit: int = 10):
+    query = db.query(Pricing)
+    total = query.count()
+    products = query.offset(skip).limit(limit).all()
+    return total, products
