@@ -9,7 +9,7 @@ def create_order(db: Session, order: schemas.OrderCreate, total_amount: float):
         product_id=order.product_id,
         quantity=order.quantity,
         total_amount=total_amount,
-        status="Delivered",
+        status="D",
         created_at=datetime.utcnow(),
     )
     db.add(db_order)

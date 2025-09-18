@@ -25,7 +25,7 @@ class OrderOut(BaseModel):
     amount: float
     discount: float
     total_amount: float
-    status: str 
+    status: Delivered
     created_at: datetime
 
     class Config:

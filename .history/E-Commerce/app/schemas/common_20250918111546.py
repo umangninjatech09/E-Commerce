@@ -10,7 +10,7 @@ class ErrorResponse(BaseModel):
 
 T = TypeVar("T")
 
-class Page(BaseModel, Generic[T]):
+class Page(Bas, Generic[T]):
     total: int
     page: int
     size: int

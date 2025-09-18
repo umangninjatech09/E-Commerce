@@ -11,9 +11,9 @@ app = FastAPI(title="Order Service")
 
 # External services
 CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000"
-PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
-PRICING_SERVICE_URL = "http://127.0.0.1:8000/pricing"
-INVENTORY_SERVICE_URL = "http://127.0.0.1:8000/inventory"
+PRODUCT_SERVICE_URL = "http://127.0.0.1:8000//products"
+PRICING_SERVICE_URL = "http://127.0.0.1:8000/pricing/pricing"
+INVENTORY_SERVICE_URL = "http://127.0.0.1:8000/inventory/inventory"
 
 
 
@@ -105,20 +105,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Insufficient inventory or product not found")
 
     # Save order
-    db_order =  crud.create_order(db, order, total_amount)
-
-    return {
-        "id": db_order.id,
-        "customer_id": db_order.customer_id,
-        "product_id": db_order.product_id,
-        "quantity": db_order.quantity,
-        "amount": price,             # ← from pricing
-        "discount": discount,        # ← from pricing
-        "total_amount": db_order.total_amount,
-        "status": db_order.status,
-        "created_at": db_order.created_at,
-    }
-
+    return crud.create_order(db, order, total_amount)
 
 
 # @app.get("/orders", response_model=List[schemas.OrderOut])

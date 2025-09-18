@@ -9,7 +9,6 @@ from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.schemas.purchase import Purchase
 from app.models.purchase import Purchase as PurchaseModel
-from app.crud.purchase import create_purchase as crud_create_purchase
 
 
 router = APIRouter()

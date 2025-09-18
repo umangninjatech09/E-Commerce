@@ -107,7 +107,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     # Save order
     db_order =  crud.create_order(db, order, total_amount)
 
-    return {
+        return {
         "id": db_order.id,
         "customer_id": db_order.customer_id,
         "product_id": db_order.product_id,
