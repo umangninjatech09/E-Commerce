@@ -25,6 +25,7 @@ def register(customer: CustomerCreate, db: Session = Depends(get_db)):
     db_customer = crud_customer.get_customer_by_email(db, email=customer.email)
     if db_customer:
         return error_response(400, "DuplicateEmail", "This email address is already registered.")
+        return error_response(400, "DuplicateEmail", "This email address is already registered.")
     return crud_customer.create_customer(db, customer)
 
 @router.post("/login")

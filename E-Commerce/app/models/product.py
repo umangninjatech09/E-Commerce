@@ -1,3 +1,5 @@
+from sqlalchemy import Column, Integer, String, Float
+from app.db.session import Base  
 from sqlalchemy import Column, Integer, String, Text, DateTime, func
 from app.db.session import Base
 from sqlalchemy.orm import relationship
@@ -16,3 +18,4 @@ class Product(Base):
     # pricings = relationship("Pricing", back_populates="product")
     pricings = relationship("Pricing", back_populates="product", cascade="all, delete")
     inventory = relationship("Inventory", back_populates="product", uselist=False)
+    search_index = relationship("SearchIndex", back_populates="product", uselist=False)
