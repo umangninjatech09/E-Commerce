@@ -7,7 +7,14 @@ from app.schemas.customer import CustomerCreate, CustomerLogin, CustomerResponse
 from app.crud import customer as crud_customer
 from app.utils.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_password_hash
 from app.utils.response_builder import error_response
+<<<<<<< HEAD
 from app.schemas.customer import CustomerPagination
+=======
+from app.models.customer import Customer
+from fastapi import Query
+from app.utils.pagination import paginate
+from app.schemas.common import Page
+>>>>>>> feature/purchase-service
 
 
 router = APIRouter()
@@ -39,12 +46,23 @@ def login(customer: CustomerLogin, db: Session = Depends(get_db)):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+<<<<<<< HEAD
 @router.get("/customer/", response_model=CustomerPagination)
 def get_customer_limit(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
     total, products = crud_customer.get_customer_limit(db, skip=(page-1)*limit, limit=limit)
     
     # Calculate total pages
     total_pages = (total + limit - 1) // limit if total > 0 else 1
+=======
+@router.get("/", response_model=Page[CustomerResponse])
+def list_customers(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100)
+):
+    query = db.query(Customer)
+    return paginate(query, page, size)    
+>>>>>>> feature/purchase-service
 
     # Validate page number
     if page < 1 or page > total_pages:

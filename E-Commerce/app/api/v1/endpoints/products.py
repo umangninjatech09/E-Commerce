@@ -13,9 +13,16 @@ from app.crud.product import (
 )
 from app.db.session import get_db
 from app.utils.response_builder import error_response
+from fastapi import Query
+from app.utils.pagination import paginate
+from app.schemas.common import Page
 
 
+<<<<<<< HEAD
 router = APIRouter(prefix="/products", tags=["Products"])
+=======
+router = APIRouter(tags=["Products"])
+>>>>>>> feature/purchase-service
 
 @router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -24,9 +31,14 @@ def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
         return error_response(400, "DuplicateSKU", "A product with this SKU already exists.")
     return create_product(db, payload)
 
-@router.get("/", response_model=List[ProductOut])
-def api_list_products(db: Session = Depends(get_db)):
-    return get_all_products(db)
+@router.get("/", response_model=Page[ProductOut])
+def api_list_products(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100)
+):
+    query = db.query(Product)
+    return paginate(query, page, size)
 
 @router.get("/{product_id}", response_model=ProductOut)
 def api_get_product(product_id: int, db: Session = Depends(get_db)):

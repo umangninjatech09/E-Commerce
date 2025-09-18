@@ -3,13 +3,36 @@ from sqlalchemy.orm import Session
 from app.schemas import inventory as schemas
 from app.crud import inventory as crud
 from app.utils.response_builder import error_response
+<<<<<<< HEAD
 from app.schemas.inventory import InventoryPagination
 
 from app.db.session import get_db
+=======
+from fastapi import Query
+from app.utils.pagination import paginate
+from app.schemas.common import Page
+from app.models.inventory import Inventory
+
+router = APIRouter( tags=["Inventory"])
+>>>>>>> feature/purchase-service
 
 router = APIRouter()
 
+<<<<<<< HEAD
 @router.post("/inventory/", response_model=schemas.InventoryResponse)
+=======
+@router.get("/", response_model=Page[schemas.InventoryResponse])
+def list_inventory(
+    db: Session = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(10, ge=1, le=100)
+):
+    query = db.query(Inventory)
+    return paginate(query, page, size)
+
+
+@router.post("/", response_model=schemas.InventoryResponse)
+>>>>>>> feature/purchase-service
 def create_inventory(inventory: schemas.InventoryCreate, db: Session = Depends(get_db)):
     return crud.create_inventory(db, inventory)
 
