@@ -9,7 +9,7 @@ from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.models.search import SearchIndex
 
-router = APIRouter(tags=["Search"])
+router = APIRouter(prefix="/search", tags=["Search"])
 
 @router.post("/", response_model=SearchOut)
 def create_search(search: SearchCreate, db: Session = Depends(get_db)):
@@ -17,12 +17,13 @@ def create_search(search: SearchCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=Page[SearchOut])
 def read_search(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)),
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100)
 ):
-    query = db.query(SearchIndex)
+    query = db.query(crud_search.SearchIndex)
     return paginate(query, page, size)
+    # return crud_search.get_all_search_indexes(db)
 
 @router.get("/{product_id}", response_model=SearchOut)
 def read_search(product_id: int, db: Session = Depends(get_db)):

@@ -9,7 +9,7 @@ from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.models.search import SearchIndex
 
-router = APIRouter(tags=["Search"])
+router = APIRouter( tags=["Search"])
 
 @router.post("/", response_model=SearchOut)
 def create_search(search: SearchCreate, db: Session = Depends(get_db)):
