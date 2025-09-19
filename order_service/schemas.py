@@ -30,4 +30,3 @@ class OrderOut(BaseModel):
 
     class Config:
         from_attributes = True
-

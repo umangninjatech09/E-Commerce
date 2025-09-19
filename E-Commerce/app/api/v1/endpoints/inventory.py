@@ -9,8 +9,6 @@ from app.schemas.common import Page
 from app.models.inventory import Inventory
 from app.db.session import get_db
 
-router = APIRouter( tags=["Inventory"])
-
 router = APIRouter()
 
 @router.get("/", response_model=Page[schemas.InventoryResponse])
@@ -21,7 +19,6 @@ def list_inventory(
 ):
     query = db.query(Inventory)
     return paginate(query, page, size)
-
 
 @router.post("/", response_model=schemas.InventoryResponse)
 def create_inventory(inventory: schemas.InventoryCreate, db: Session = Depends(get_db)):
@@ -40,4 +37,3 @@ def update_inventory(product_id: int, inv_update: schemas.InventoryUpdate, db: S
     if not updated_item:
         return error_response(404, "InventoryNotFound", f"Cannot update: inventory record for product_id={product_id} was not found.")
     return updated_item
-

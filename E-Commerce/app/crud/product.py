@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductUpdate
+from app.crud import product as crud_product 
 
 def create_product(db: Session, product_in: ProductCreate) -> Product:
     db_product = Product(**product_in.dict())
@@ -42,10 +43,8 @@ def delete_product(db: Session, product_id: int) -> Optional[Product]:
 def get_product(db: Session, product_id: int):
     return db.query(Product).filter(Product.id == product_id).first()
 
-from app.crud import product as crud_product 
 def get_products(db: Session, skip: int = 0, limit: int = 10):
     query = db.query(Product)
     total = query.count()
     products = query.offset(skip).limit(limit).all()
     return total, products
-

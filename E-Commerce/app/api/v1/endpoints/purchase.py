@@ -11,14 +11,11 @@ from app.schemas.purchase import Purchase
 from app.models.purchase import Purchase as PurchaseModel
 from app.crud.purchase import create_purchase as crud_create_purchase
 
-
 router = APIRouter()
-
 
 @router.post("/", response_model=Purchase)
 def api_create_purchase(purchase: PurchaseCreate, db: Session = Depends(get_db)):
     return crud_create_purchase(db, purchase)
-
 
 @router.get("/", response_model=Page[Purchase])
 def list_purchase(
@@ -43,4 +40,3 @@ def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
     if not db_purchase:
         raise HTTPException(status_code=404, detail="Purchase not found")
     return db_purchase
-

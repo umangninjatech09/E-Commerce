@@ -3,7 +3,6 @@ from app.models.purchase import Purchase
 from app.models.inventory import Inventory
 from app.schemas.purchase import PurchaseCreate
 
-
 def create_purchase(db: Session, purchase: PurchaseCreate):
     total_amount = purchase.quantity * purchase.unit_cost
 
@@ -17,7 +16,7 @@ def create_purchase(db: Session, purchase: PurchaseCreate):
     )
     db.add(db_purchase)
 
-    # ✅ Update inventory automatically
+    # Update inventory automatically
     inventory = db.query(Inventory).filter(Inventory.product_id == purchase.product_id).first()
 
     if inventory:

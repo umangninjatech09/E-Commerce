@@ -3,7 +3,6 @@ from sqlalchemy.sql import func
 from app.db.session import Base
 from sqlalchemy.orm import relationship
 
-
 class Supplier(Base):
     __tablename__ = "suppliers"
 

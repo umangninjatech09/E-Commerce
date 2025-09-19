@@ -9,7 +9,6 @@ class SupplierBase(BaseModel):
     address: str
     status: Literal["active", "inactive"] = "active"
 
-
 class SupplierCreate(SupplierBase):
     pass
 

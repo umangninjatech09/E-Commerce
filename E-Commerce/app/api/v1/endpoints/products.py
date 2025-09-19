@@ -17,10 +17,8 @@ from fastapi import Query
 from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.models.product import Product
- 
 
-
-router = APIRouter(tags=["Products"])
+router = APIRouter()
 
 @router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def api_create_product(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -58,5 +56,3 @@ def api_delete_product(product_id: int, db: Session = Depends(get_db)):
     if not product:
         return error_response(404, "ProductNotFound", f"Cannot delete: product with id {product_id} was not found.")
     return {"message": "Product deleted successfully"}
-
-

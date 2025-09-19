@@ -9,6 +9,5 @@ class Inventory(Base):
     product_id = Column(Integer, ForeignKey("products.id"), unique=True, nullable=False)
     quantity = Column(Integer, default=0)
     
-
     product = relationship("Product", back_populates="inventory")
     search_index = relationship("SearchIndex", back_populates="inventory")

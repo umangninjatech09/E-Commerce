@@ -26,7 +26,6 @@ class ProductOut(ProductBase):
     class Config:
         from_attributes = True 
 
-
 class ProductWithInventory(BaseModel):
     id: int
     name: str
@@ -38,8 +37,5 @@ class ProductWithInventory(BaseModel):
     amount: float
     created_at: datetime
 
-
     class Config:
         from_attributes = True
-        
-

@@ -12,7 +12,6 @@ from app.schemas.common import Page
 
 router = APIRouter()
 
-
 @router.post("/", response_model=SupplierOut)
 def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
     return crud_supplier.create_supplier(db, supplier)

@@ -11,9 +11,7 @@ from app.utils.pagination import paginate
 from app.schemas.common import Page
 from app.models.pricing import Pricing
 
-
-
-router = APIRouter(tags=["Pricing"])
+router = APIRouter()
 
 @router.post("/", response_model=schemas.Pricing)
 def api_create_pricing(pricing: schemas.PricingCreate, db: Session = Depends(get_db)):
@@ -58,5 +56,3 @@ def delete_pricing(pricing_id: int, db: Session = Depends(get_db)):
     if not deleted:
         return error_response(404, "PricingNotFound", f"Cannot delete: pricing record with id={pricing_id} was not found.")
     return {"detail": "Pricing deleted successfully"}
-
-
