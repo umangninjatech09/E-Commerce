@@ -1,5 +1,7 @@
 from fastapi.responses import JSONResponse
 from app.utils.auth import decode_token
+from app.utils.middleware import jwt_middleware
+
 
 async def jwt_middleware(request, call_next):
     """Global JWT middleware for protected routes."""
