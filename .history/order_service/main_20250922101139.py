@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from order_service import models, schemas, crud, database
 from typing import List
-from order_service.database import get_db
+
 
 
 # Create tables

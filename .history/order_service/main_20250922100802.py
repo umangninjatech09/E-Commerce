@@ -137,7 +137,7 @@ async def list_orders(db: Session = Depends(get_db)):
         # Fetch pricing info for each product in the order
         pricing = await validate_pricing(db_order.product_id)
         if not pricing:
-            raise HTTPException(status_code=400, detail=f"Pricing not found for product {db_order.product_id}")
+            return HTTPException(status_code=400, detail=f"Pricing not found for product {db_order.product_id}")
 
         price = pricing["amount"]
         discount = pricing.get("discount", 0)
@@ -169,21 +169,21 @@ async def list_orders(db: Session = Depends(get_db)):
 async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = Depends(get_db)):
     existing_order = crud.get_order_by_id(db, order_id)
     if not existing_order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        return HTTPException(status_code=404, detail="Order not found")
     
     if order.product_id != existing_order.product_id:
         product = await validate_product(order.product_id)
         if not product:
-            raise HTTPException(status_code=400, detail="Invalid product ID")
+            return HTTPException(status_code=400, detail="Invalid product ID")
         
     if order.customer_id != existing_order.customer_id:
         customer = await validate_customer(order.customer_id)
         if not customer:
-            raise HTTPException(status_code=400, detail="Invalid customer ID")
+            return HTTPException(status_code=400, detail="Invalid customer ID")
         
     pricing = await validate_pricing(order.product_id)
     if not pricing:
-        raise HTTPException(status_code=400, detail="Pricing not found")
+        return HTTPException(status_code=400, detail="Pricing not found")
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
@@ -193,11 +193,11 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     # Adjust inventory: restore old, subtract new
     restore_inventory = await update_inventory(existing_order.product_id, -existing_order.quantity)
     if not restore_inventory:
-        raise HTTPException(status_code=400, detail="Failed to restore old inventory")
+        return HTTPException(status_code=400, detail="Failed to restore old inventory")
 
     inventory = await update_inventory(order.product_id, order.quantity)
     if not inventory:
-        raise HTTPException(status_code=400, detail="Insufficient inventory for updated order")
+        return HTTPException(status_code=400, detail="Insufficient inventory for updated order")
 
     # Update order in DB
     updated_order = crud.update_order(db, order_id, order, total_amount)
@@ -208,12 +208,12 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
 async def delete_order(order_id: int, db: Session = Depends(get_db)):
     existing_order = crud.get_order_by_id(db, order_id)
     if not existing_order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        return HTTPException(status_code=404, detail="Order not found")
 
     # Restore inventory
     restore_inventory = await update_inventory(existing_order.product_id, -existing_order.quantity)
     if not restore_inventory:
-        raise HTTPException(status_code=400, detail="Failed to restore inventory after deletion")
+        return HTTPException(status_code=400, detail="Failed to restore inventory after deletion")
 
     # Delete order
     deleted_order = crud.delete_order(db, order_id)

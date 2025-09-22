@@ -179,7 +179,7 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     if order.customer_id != existing_order.customer_id:
         customer = await validate_customer(order.customer_id)
         if not customer:
-            raise HTTPException(status_code=400, detail="Invalid customer ID")
+            return HTTPException(status_code=400, detail="Invalid customer ID")
         
     pricing = await validate_pricing(order.product_id)
     if not pricing:
