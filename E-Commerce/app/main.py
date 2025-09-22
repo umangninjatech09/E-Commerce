@@ -13,6 +13,7 @@ from app.utils.middleware import jwt_middleware
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="E-Commerce Product Catalog System")
+app.middleware("http")(jwt_middleware)
 
 app.middleware("http")(jwt_middleware)
 
