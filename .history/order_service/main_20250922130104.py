@@ -90,17 +90,17 @@ async def create_order(
     # Validate customer
     customer = await validate_customer(order.customer_id, token)
     if not customer:
-        raise HTTPException(status_code=400, detail="Invalid Customer")
+        raise HTTPException(status_code=400, detail="Invalid Customer", detail="The customer ID provided is invalid.")
 
     # Validate product
     product = await validate_product(order.product_id, token)
     if not product:
-        raise HTTPException(status_code=400, detail="Invalid Product")
+        raise HTTPException(status_code=400, detail="Invalid Product", detail="The product ID provided is invalid.")
 
     # Validate pricing
     pricing = await validate_pricing(order.product_id, token)
     if not pricing:
-        raise HTTPException(status_code=400, detail="Pricing Not Found")
+        raise HTTPException(status_code=400, detail="Pricing Not Found", detail=f"No pricing found for product_id={order.product_id}")
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
@@ -111,7 +111,7 @@ async def create_order(
     # Update inventory
     inventory = await update_inventory(order.product_id, order.quantity, token)
     if not inventory:
-        raise HTTPException(status_code=400, detail="InventoryError")
+        raise HTTPException(status_code=400, detail="InventoryError", detail="Insufficient inventory or product not found")
 
     new_order = models.Order(
         customer_id=order.customer_id,

@@ -111,7 +111,7 @@ async def create_order(
     # Update inventory
     inventory = await update_inventory(order.product_id, order.quantity, token)
     if not inventory:
-        raise HTTPException(status_code=400, detail="InventoryError")
+        raise HTTPException(status_code=400, detail="InventoryError", detail="Insufficient inventory or product not found")
 
     new_order = models.Order(
         customer_id=order.customer_id,
