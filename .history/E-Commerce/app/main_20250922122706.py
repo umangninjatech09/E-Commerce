@@ -16,10 +16,10 @@ app = FastAPI(title="E-Commerce Product Catalog System")
 
 app.middleware("http")(jwt_middleware)
 
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(customer_router, prefix="/customers", tags=["Customers"])
+app.include_router(auth_router, prefix="/auth", tags=["AuthenticCustomers"])
 app.include_router(product_router, prefix="/products", tags=["Products"])
 app.include_router(inventory_router, prefix="/inventory", tags=["Inventory"])
 app.include_router(pricing_router, prefix="/pricing", tags=["Pricing"])
 
-app.openapi = lambda: custom_openapi(app)
+app.openapi = lambda: custom_openapi(app)ation"])
+app.include_router(customer_router, prefix="/customers", tags=["
