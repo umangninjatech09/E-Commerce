@@ -38,4 +38,15 @@ def list_customers(
     size: int = Query(10, ge=1, le=100)
 ):
     query = db.query(Customer)
-    return paginate(query, page, size)    
+    return paginate(query, page, size)
+
+
+@router.get("/{customer_id}", response_model=CustomerResponse)
+def get_customer_by_id(customer_id: int, db: Session = Depends(get_db)):
+    customer = crud_customer.get_customer(db, customer_id)
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Customer with id={customer_id} not found"
+        )
+    return customer
