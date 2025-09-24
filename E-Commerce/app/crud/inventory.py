@@ -29,3 +29,11 @@ def get_inventory_limit(db: Session, skip: int = 0, limit: int = 10):
     total = query.count()
     products = query.offset(skip).limit(limit).all()
     return total, products
+    
+def delete_inventory(db: Session, product_id: int):
+    item = get_inventory(db, product_id)
+    if item:
+        db.delete(item)
+        db.commit()
+        return True
+    return False

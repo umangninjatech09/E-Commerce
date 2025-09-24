@@ -15,36 +15,13 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="Order Service")
 
 # External services
-CUSTOMER_SERVICE_URL = "http://ecommerce:8000"
-PRODUCT_SERVICE_URL = "http://ecommerce:8000/products"
-PRICING_SERVICE_URL = "http://ecommerce:8000/pricing"
-INVENTORY_SERVICE_URL = "http://ecommerce:8000/inventory"
+CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000"
+PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
+PRICING_SERVICE_URL = "http://127.0.0.1:8000/pricing"
+INVENTORY_SERVICE_URL = "http://127.0.0.1:8000/inventory"
 
 
 # Helpers (sync httpx)
-
-# async def validate_customer(customer_id: int):
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
-
-# async def validate_customer(customer_id: int):
-#     headers = {
-#         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1ODUzNDYzOH0.8MLiFj_WhDNMaLLpcx1gbVk08zUmxahE1ZinM_5Jmqo"
-#     }
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(
-#             f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}",
-#             headers=headers
-#         )
-#         print(f"[DEBUG] Requested customer_id={customer_id}")
-#         print(f"[DEBUG] Response status={response.status_code}, body={response.text}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
-
 
 async def make_authenticated_request(url: str, method: str = "GET", data: dict = None):
     # Get the OAuth token
@@ -73,6 +50,13 @@ async def make_authenticated_request(url: str, method: str = "GET", data: dict =
 async def validate_customer(customer_id: int):
     url = f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}"
     return await make_authenticated_request(url)
+
+# async def validate_product(product_id: int):
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(f"{PRODUCT_SERVICE_URL}/{product_id}")
+#         if response.status_code == 200:
+#             return response.json()
+#     return None
 
 async def validate_product(product_id: int):
     url = f"{PRODUCT_SERVICE_URL}/{product_id}"
@@ -152,6 +136,14 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
         "created_at": new_order.created_at,
     }
 
+
+    # Save order
+    # return crud.create_order(db, order, total_amount)
+
+
+# @app.get("/orders", response_model=List[schemas.OrderOut])
+# def list_orders(db: Session = Depends(get_db)):
+#     return crud.get_orders(db)
 
 @app.get("/orders", response_model=List[schemas.OrderOut])
 async def list_orders(db: Session = Depends(get_db)):
@@ -242,7 +234,6 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     }
 
 
-
 # DELETE - Delete Order
 @app.delete("/orders/{order_id}")
 async def delete_order(order_id: int, db: Session = Depends(get_db)):
@@ -250,20 +241,11 @@ async def delete_order(order_id: int, db: Session = Depends(get_db)):
     if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Restore inventory
-    restore_inventory = await update_inventory(existing_order.product_id, -existing_order.quantity)
-    if not restore_inventory:
-        raise HTTPException(status_code=400, detail="Failed to restore inventory after deletion")
+        # Delete the order
+        deleted_order = crud.delete_order(db, order_id)
+        return deleted_order
 
     # Delete order from DB
     crud.delete_order(db, order_id)
 
     return JSONResponse(content={"message": "Order deleted successfully"})
-
-
-
-
-
-
-
-
