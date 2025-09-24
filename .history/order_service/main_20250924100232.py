@@ -23,29 +23,6 @@ INVENTORY_SERVICE_URL = "http://ecommerce:8000/inventory"
 
 # Helpers (sync httpx)
 
-# async def validate_customer(customer_id: int):
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
-
-# async def validate_customer(customer_id: int):
-#     headers = {
-#         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1ODUzNDYzOH0.8MLiFj_WhDNMaLLpcx1gbVk08zUmxahE1ZinM_5Jmqo"
-#     }
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(
-#             f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}",
-#             headers=headers
-#         )
-#         print(f"[DEBUG] Requested customer_id={customer_id}")
-#         print(f"[DEBUG] Response status={response.status_code}, body={response.text}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
-
-
 async def make_authenticated_request(url: str, method: str = "GET", data: dict = None):
     # Get the OAuth token
     token = await get_oauth_token()
@@ -120,6 +97,7 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
+
     discounted_price = price * (1 - discount / 100)
     total_amount = round(order.quantity * discounted_price, 2)
 
@@ -155,33 +133,45 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
 
 @app.get("/orders", response_model=List[schemas.OrderOut])
 async def list_orders(db: Session = Depends(get_db)):
-    orders = crud.get_orders(db)
-    orders_with_details = []
+    # Fetch all orders from the database
+    db_orders = crud.get_orders(db)
 
-    for order in orders:
-        pricing = await validate_pricing(order.product_id)
+    # Prepare the response with amount, discount, and total_amount for each order
+    orders_with_details = []
+    for db_order in db_orders:
+        # Fetch pricing info for each product in the order
+        pricing = await validate_pricing(db_order.product_id)
         if not pricing:
-            raise HTTPException(status_code=400, detail=f"Pricing not found for product {order.product_id}")
+            raise HTTPException(status_code=400, detail=f"Pricing not found for product {db_order.product_id}")
+
         price = pricing["amount"]
         discount = pricing.get("discount", 0)
-        total_amount = round(order.quantity * price * (1 - discount / 100), 2)
+
+        # Calculate the original amount (price * quantity before discount)
+        original_amount = price * db_order.quantity
+
+        # Calculate the discounted total amount (price * quantity * (1 - discount / 100))
+        discounted_price = original_amount * (1 - discount / 100)
+        total_amount = round(discounted_price, 2)
+
+        # Append the order details with the pricing information
         orders_with_details.append(schemas.OrderOut(
-            id=order.id,
-            customer_id=order.customer_id,
-            product_id=order.product_id,
-            quantity=order.quantity,
-            amount=price,
-            discount=discount,
+            id=db_order.id,
+            customer_id=db_order.customer_id,
+            product_id=db_order.product_id,
+            quantity=db_order.quantity,
             total_amount=total_amount,
-            status=order.status,
-            created_at=order.created_at
+            amount=original_amount,
+            discount=discount,
+            status=db_order.status,               
+            created_at=db_order.created_at             
         ))
+
     return orders_with_details
 
 
 @app.put("/orders/{order_id}", response_model=schemas.OrderOut)
 async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = Depends(get_db)):
-    #  Get existing order
     existing_order = crud.get_order_by_id(db, order_id)
     if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -201,31 +191,23 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     # Validate pricing for the product
     pricing = await validate_pricing(order.product_id)
     if not pricing:
-        raise HTTPException(status_code=400, detail="PricingNotFound: No pricing found for product")
+        raise HTTPException(status_code=400, detail="Pricing not found")
 
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
     discounted_price = price * (1 - discount / 100)
     total_amount = round(order.quantity * discounted_price, 2)
 
-    # Calculate quantity difference
-    if order.product_id == existing_order.product_id:
-        quantity_diff = order.quantity - existing_order.quantity
-        # Positive diff = customer added more → subtract from inventory
-        # Negative diff = customer reduced quantity → add back to inventory
-        inventory_result = await update_inventory(order.product_id, -quantity_diff)
-        if "error" in inventory_result:
-            raise HTTPException(status_code=400, detail=f"InventoryError: {inventory_result['error']}")
-    else:
-        # Product changed → restore old product inventory, subtract new product inventory
-        restored = await update_inventory(existing_order.product_id, existing_order.quantity)
-        if "error" in restored:
-            raise HTTPException(status_code=400, detail=f"InventoryError: {restored['error']}")
-        deducted = await update_inventory(order.product_id, -order.quantity)
-        if "error" in deducted:
-            raise HTTPException(status_code=400, detail=f"InventoryError: {deducted['error']}")
+    # Adjust inventory: restore old, subtract new
+    restore_inventory = await update_inventory(existing_order.product_id, -existing_order.quantity)
+    if not restore_inventory:
+        raise HTTPException(status_code=400, detail="Failed to restore old inventory")
 
-    # Update DB order
+    inventory = await update_inventory(order.product_id, order.quantity)
+    if not inventory:
+        raise HTTPException(status_code=400, detail="Insufficient inventory for updated order")
+
+    # Update order in DB
     updated_order = crud.update_order(db, order_id, order, total_amount)
 
     # Manually add missing fields for response

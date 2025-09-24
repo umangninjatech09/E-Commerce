@@ -11,7 +11,7 @@ router = APIRouter(tags=["Authentication"])
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     # ⚠️ Replace with real DB check
     if form_data.username != "admin" or form_data.password != "admin123":
-        return error_response(401, "Invalid credentials", "The username or password provided is incorrect.")
+         error_response(401, "Invalid credentials", "The username or password provided is incorrect.")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
         data={"sub": form_data.username},

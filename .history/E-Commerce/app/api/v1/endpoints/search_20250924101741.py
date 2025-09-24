@@ -17,7 +17,7 @@ def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(g
 def read_search_index(search_id: int, db: Session = Depends(get_db)):
     obj = crud_search.get_search_index(db, search_id)
     if not obj:
-        return error_response(404, "SearchEntryNotFound", f"Search entry with id {search_id} not found.")
+\
     return obj
  
 @router.get("/", response_model=List[SearchIndexOut])
@@ -32,7 +32,8 @@ def search_entries(query: str, db: Session = Depends(get_db)):
 def delete_search_index(search_id: int, db: Session = Depends(get_db)):
     obj = crud_search.get_search_index(db, search_id)
     if not obj:
-        return error_response(404, "SearchEntryNotFound", f"Cannot delete: search entry with id {search_id} was not found.")   
+        raise HTTPException(status_code=404, detail="Search entry not found")
+   
     crud_search.delete_search_index(db, obj)
    
     return {"message": f"Search entry with ID {search_id} deleted successfully."}

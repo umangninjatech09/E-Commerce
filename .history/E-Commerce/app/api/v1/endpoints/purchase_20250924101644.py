@@ -33,12 +33,12 @@ def list_purchase(
 def update_purchases(purchase_id: int, purchase: PurchaseCreate, db: Session = Depends(get_db)):
     db_purchase = update_purchase(db, purchase_id, purchase)
     if not db_purchase:
-        return error_response(404, "PurchaseNotFound", f"Cannot update: purchase with id {purchase_id} was not found.")
+        ret
     return db_purchase
 
 @router.delete("/{purchase_id}", response_model=Purchase)
 def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
     db_purchase = delete_purchase(db, purchase_id)
     if not db_purchase:
-        return error_response(404, "PurchaseNotFound", f"Cannot delete: purchase with id {purchase_id} was not found.")
+        raise HTTPException(status_code=404, detail="Purchase not found")
     return db_purchase
