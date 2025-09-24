@@ -10,7 +10,6 @@ from app.schemas.common import Page
 from app.schemas.purchase import Purchase
 from app.models.purchase import Purchase as PurchaseModel
 from app.crud.purchase import create_purchase as crud_create_purchase
-from app.utils.response_builder import error_response
 
 
 router = APIRouter()
@@ -33,12 +32,12 @@ def list_purchase(
 def update_purchases(purchase_id: int, purchase: PurchaseCreate, db: Session = Depends(get_db)):
     db_purchase = update_purchase(db, purchase_id, purchase)
     if not db_purchase:
-        return error_response(404, "PurchaseNotFound", f"Cannot update: purchase with id {purchase_id} was not found.")
+        raise HTTPException(status_code=404, detail="Purchase not found")
     return db_purchase
 
 @router.delete("/{purchase_id}", response_model=Purchase)
 def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
     db_purchase = delete_purchase(db, purchase_id)
     if not db_purchase:
-        return error_response(404, "PurchaseNotFound", f"Cannot delete: purchase with id {purchase_id} was not found.")
+        raise HTTPException(status_code=404, detail="Purchase not found")
     return db_purchase

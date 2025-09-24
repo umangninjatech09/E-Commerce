@@ -47,5 +47,4 @@ def update_supplier(supplier_id: int, supplier: SupplierUpdate, db: Session = De
 def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     db_supplier = crud_supplier.delete_supplier(db, supplier_id)
     if not db_supplier:
-        return error_response(404, "SupplierNotFound", f"Cannot delete: supplier with id {supplier_id} was not found.")
     return db_supplier
