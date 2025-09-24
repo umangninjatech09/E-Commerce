@@ -12,8 +12,7 @@ class SearchIndexCreate(SearchIndexBase):
  
 class SearchIndexOut(SearchIndexBase):
     id: int
-    product_name: Optional[str] = None
-    customer_name: Optional[str] = None
+    prodname: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
  

@@ -5,6 +5,7 @@ from app.crud import search as crud_search
 from app.schemas.search import SearchIndexCreate, SearchIndexOut
 from typing import List 
 from app.utils.response_builder import error_response
+from starlette import status
 from app.models.product import Product
 from app.models.customer import Customer
 from app.models.inventory import Inventory
@@ -13,31 +14,43 @@ from app.models.pricing import Pricing
 
 router = APIRouter()
  
+# @router.post("/", response_model=SearchIndexOut)
+# def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(get_db)):
+#     return crud_search.create_search_index(db, obj_in)
+ 
 @router.post("/", response_model=SearchIndexOut)
 def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(get_db)):
     # check product
     product = db.query(Product).filter(Product.id == obj_in.product_id).first()
     if not product:
-        return error_response(404, "ProductNotFound", f"Cannot create: product with id {obj_in.product_id} was not found.")
-
+        
+    
     # check customer
     customer = db.query(Customer).filter(Customer.id == obj_in.customer_id).first()
     if not customer:
-        return error_response(404, "CustomerNotFound", f"Cannot create: customer with id {obj_in.customer_id} was not found.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Customer with id {obj_in.customer_id} not found"
+        )
 
     # check inventory
     inventory = db.query(Inventory).filter(Inventory.id == obj_in.inventory_id).first()
     if not inventory:
-        return error_response(404, "InventoryNotFound", f"Cannot create: inventory with id {obj_in.inventory_id} was not found.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Inventory with id {obj_in.inventory_id} not found"
+        )
 
     # check pricing
     pricing = db.query(Pricing).filter(Pricing.id == obj_in.pricing_id).first()
     if not pricing:
-        return error_response(404, "PricingNotFound", f"Cannot create: pricing with id {obj_in.pricing_id} was not found.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Pricing with id {obj_in.pricing_id} not found"
+        )
 
     # ✅ all checks passed → create entry
     return crud_search.create_search_index(db, obj_in)
-
 
 @router.get("/{search_id}", response_model=SearchIndexOut)
 def read_search_index(search_id: int, db: Session = Depends(get_db)):

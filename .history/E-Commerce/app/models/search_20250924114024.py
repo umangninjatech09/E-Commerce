@@ -21,14 +21,10 @@ class SearchIndex(Base):
     pricing = relationship("Pricing", back_populates="search_index")
  
     @property
-    def product_cname(self):
+    def name(self):
         if self.product:
             return self.product.name
-        return None
-    
-    @property
-    def customer_name(self):
-        if self.customer:
+        elif self.customer:
             return self.customer.name
         return None
  
@@ -40,6 +36,8 @@ class SearchIndex(Base):
  
     @property
     def price(self):
+        if self.product and getattr(self.product, "price", None) is not None:
+            return self.product.price
         if self.pricing and getattr(self.pricing, "amount", None) is not None:
             return self.pricing.amount
         return None

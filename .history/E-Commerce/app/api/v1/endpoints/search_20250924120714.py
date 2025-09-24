@@ -5,6 +5,7 @@ from app.crud import search as crud_search
 from app.schemas.search import SearchIndexCreate, SearchIndexOut
 from typing import List 
 from app.utils.response_builder import error_response
+from starlette import status
 from app.models.product import Product
 from app.models.customer import Customer
 from app.models.inventory import Inventory

@@ -18,10 +18,7 @@ def get_all_search_indices(db: Session, skip: int = 0, limit: int = 100):
 # def search_by_name(db: Session, query: str):
 #     return db.query(SearchIndex).filter(SearchIndex.name.ilike(f"%{query}%")).all()
  
-def search_by_name(db, query: str):
-    results = db.query(SearchIndex).all()
-    return [r for r in results if r.name and query.lower() in r.name.lower()]
- 
+
 
 def delete_search_index(db: Session, obj: SearchIndex):
     db.delete(obj)

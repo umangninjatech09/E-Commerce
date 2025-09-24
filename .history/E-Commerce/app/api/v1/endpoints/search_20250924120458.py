@@ -5,6 +5,7 @@ from app.crud import search as crud_search
 from app.schemas.search import SearchIndexCreate, SearchIndexOut
 from typing import List 
 from app.utils.response_builder import error_response
+from starlette import status
 from app.models.product import Product
 from app.models.customer import Customer
 from app.models.inventory import Inventory
@@ -12,6 +13,10 @@ from app.models.pricing import Pricing
 
 
 router = APIRouter()
+ 
+# @router.post("/", response_model=SearchIndexOut)
+# def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(get_db)):
+#     return crud_search.create_search_index(db, obj_in)
  
 @router.post("/", response_model=SearchIndexOut)
 def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(get_db)):
