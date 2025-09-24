@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  ecommerce:
+    build:
+      context: ./E-Commerce
+      dockerfile: Dockerfile
+    container_name: ecommerce_service
+    ports: - "8000:8000"
+    volumes:
+      - ./E-Commerce/E-Commerce.db:/app/E-Commerce.db
+    environment:
+      - DATABASE_URL=sqlite:///./E-Commerce.db
+      - REDIS_URL=redis://redis:6379/0
+
+  order_service:
+    build:
+      context: ./order_service
+      dockerfile: Dockerfile
+    container_name: order_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./order_service/orders.db:/app/orders.db
+    environment:
+      - DATABASE_URL=sqlite:///./orders.db
+      - REDIS_URL=redis://redis:6379/0
+
+  redis:
+    image: redis:7
+    container_name: ecommerce_redis
+    ports:
+      - "6379:6379"

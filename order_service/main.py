@@ -15,10 +15,10 @@ models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="Order Service")
 
 # External services
-CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000"
-PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
-PRICING_SERVICE_URL = "http://127.0.0.1:8000/pricing"
-INVENTORY_SERVICE_URL = "http://127.0.0.1:8000/inventory"
+CUSTOMER_SERVICE_URL = "http://ecommerce:8000"
+PRODUCT_SERVICE_URL = "http://ecommerce:8000/products"
+PRICING_SERVICE_URL = "http://ecommerce:8000/pricing"
+INVENTORY_SERVICE_URL = "http://ecommerce:8000/inventory"
 
 
 # Helpers (sync httpx)
@@ -267,3 +267,11 @@ async def delete_order(order_id: int, db: Session = Depends(get_db)):
     crud.delete_order(db, order_id)
 
     return JSONResponse(content={"message": "Order deleted successfully"})
+
+
+
+
+
+
+
+
