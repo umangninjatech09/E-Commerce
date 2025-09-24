@@ -14,14 +14,10 @@ def get_search_index(db: Session, search_id: int):
  
 def get_all_search_indices(db: Session, skip: int = 0, limit: int = 100):
     return db.query(SearchIndex).offset(skip).limit(limit).all()
- 
-# def search_by_name(db: Session, query: str):
-#     return db.query(SearchIndex).filter(SearchIndex.name.ilike(f"%{query}%")).all()
 
 def search_by_name(db, query: str):
     results = db.query(SearchIndex).all()
-    return [r for r in results if r.name and query.lower() in r.name.lower()]
-
+    return [r for r in results if r.product_name and query.lower() in r.product_name.lower()]
 
 def delete_search_index(db: Session, obj: SearchIndex):
     db.delete(obj)
