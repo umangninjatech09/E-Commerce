@@ -20,53 +20,26 @@ class SearchIndex(Base):
     inventory = relationship("Inventory", back_populates="search_index")
     pricing = relationship("Pricing", back_populates="search_index")
  
-    # ---------------- Python-level hybrid properties ----------------
-    @hybrid_property
-    def name(self):
+    @property
+    def product_name(self):
         if self.product:
             return self.product.name
-        elif self.customer:
-            return self.customer.name
         return None
  
-    @hybrid_property
+    @property
+    def customer_name(self):
+        if self.customer:
+            return self.customer.name
+        return None
+
+    @property
     def description(self):
         if self.product:
             return self.product.description
         return None
  
-    @hybrid_property
+    @property
     def price(self):
-        # Python-level: Product price first, then Pricing amount
-        if self.product and getattr(self.product, "price", None) is not None:
-            return self.product.price
         if self.pricing and getattr(self.pricing, "amount", None) is not None:
             return self.pricing.amount
         return None
- 
-    # ---------------- SQL-level hybrid expressions ----------------
-    @price.expression
-    def price(cls):
-        return case(
-            (
-                cls.product_id != None,
-                select(Product.price).where(Product.id == cls.product_id).scalar_subquery()
-            ),
-            (
-                cls.pricing_id != None,
-                select(Pricing.amount).where(Pricing.id == cls.pricing_id).scalar_subquery()
-            ),
-            else_=None
-        )
- 
-    @name.expression
-    def name(cls):
-        return case(
-            (cls.product_id != None, select(Product.name).where(Product.id == cls.product_id).scalar_subquery()),
-            (cls.customer_id != None, select(Customer.name).where(Customer.id == cls.customer_id).scalar_subquery()),
-            else_=None
-        )
- 
-    @description.expression
-    def description(cls):
-        return select(Product.description).where(Product.id == cls.product_id).scalar_subquery()
