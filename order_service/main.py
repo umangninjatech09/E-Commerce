@@ -3,6 +3,12 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from order_service import models, schemas, crud, database
 from typing import List
+from order_service.database import SessionLocal, engine, get_db
+from order_service.auth import get_oauth_token
+from fastapi.responses import JSONResponse
+from fastapi import APIRouter
+
+
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -13,14 +19,6 @@ CUSTOMER_SERVICE_URL = "http://127.0.0.1:8000"
 PRODUCT_SERVICE_URL = "http://127.0.0.1:8000/products"
 PRICING_SERVICE_URL = "http://127.0.0.1:8000/pricing"
 INVENTORY_SERVICE_URL = "http://127.0.0.1:8000/inventory"
-
-# Dependency
-def get_db():
-    db = database.SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 # Helpers (sync httpx)
@@ -48,91 +46,58 @@ def get_db():
 #     return None
 
 
-async def validate_customer(customer_id: int):
-    headers = {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1ODU0NzI4N30.1myPXQEPbm3NlXhQzjnpWdhiEcs9wHPAXu6evESCwqg"}
+async def make_authenticated_request(url: str, method: str = "GET", data: dict = None):
+    # Get the OAuth token
+    token = await get_oauth_token()
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
     async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}",
-            headers=headers
-        )
-        print(f"[DEBUG] customer_id={customer_id}, status={response.status_code}, body={response.text}")
+        if method == "GET":
+            response = await client.get(url, headers=headers)
+        elif method == "PUT":
+            response = await client.put(url, json=data, headers=headers)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported HTTP method")
+        
+        # Handle response
         if response.status_code == 200:
             return response.json()
-    return None
+        else:
+            raise HTTPException(status_code=response.status_code, detail=f"Error calling {url}: {response.text}")
 
-# async def validate_product(product_id: int):
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"{PRODUCT_SERVICE_URL}/{product_id}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
+# Updated external service validation functions to use authenticated request
+async def validate_customer(customer_id: int):
+    url = f"{CUSTOMER_SERVICE_URL}/customers/{customer_id}"
+    return await make_authenticated_request(url)
 
 async def validate_product(product_id: int):
-    headers = {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1ODU0NzI4N30.1myPXQEPbm3NlXhQzjnpWdhiEcs9wHPAXu6evESCwqg"
-    }
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{PRODUCT_SERVICE_URL}/{product_id}",
-            headers=headers
-        )
-        print(f"[DEBUG] product_id={product_id}, status={response.status_code}, body={response.text}")
-        if response.status_code == 200:
-            return response.json()
-    return None
+    url = f"{PRODUCT_SERVICE_URL}/{product_id}"
+    return await make_authenticated_request(url)
 
 async def validate_pricing(product_id: int):
-    headers = {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc1ODU0NzI4N30.1myPXQEPbm3NlXhQzjnpWdhiEcs9wHPAXu6evESCwqg"
-    }
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{PRICING_SERVICE_URL}/{product_id}",
-            headers=headers
-        )
-        print(f"[DEBUG] pricing check for product_id={product_id}, status={response.status_code}, body={response.text}")
-        if response.status_code == 200:
-            return response.json()
-    return None
+    url = f"{PRICING_SERVICE_URL}/{product_id}"
+    return await make_authenticated_request(url)
 
+async def update_inventory(product_id: int, quantity: int):
+    url = f"{INVENTORY_SERVICE_URL}/{product_id}"
+    current_inventory = await make_authenticated_request(url)
+    
+    if not current_inventory:
+        return None
 
-# async def validate_pricing(product_id: int):
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"{PRICING_SERVICE_URL}/{product_id}")
-#         if response.status_code == 200:
-#             return response.json()
-#     return None
+    current_stock = current_inventory["quantity"]
+    if current_stock < quantity:
+        return None
 
-async def update_inventory(product_id: int, quantity_change: int):
-    """
-    Adjust inventory: Positive -> add, Negative -> subtract.
-    Returns updated inventory JSON if successful.
-    """
-    async with httpx.AsyncClient() as client:
-        # 1️⃣ Get current stock
-        response = await client.get(f"{INVENTORY_SERVICE_URL}/{product_id}")
-        if response.status_code != 200:
-            return {"error": "Product not found in inventory"}
-        
-        inventory = response.json()
-        current_stock = inventory.get("quantity", 0)
+    new_quantity = current_stock - quantity
+    update_payload = {"quantity": new_quantity}
 
-        # 2️⃣ Check if enough stock exists before reducing
-        if quantity_change < 0 and current_stock < abs(quantity_change):
-            return {"error": "Insufficient stock available"}
-
-        # 3️⃣ Update inventory (send final quantity)
-        new_quantity = current_stock + quantity_change
-        put_response = await client.put(
-            f"{INVENTORY_SERVICE_URL}/{product_id}",
-            json={"quantity": new_quantity}
-        )
-
-        if put_response.status_code == 200:
-            return put_response.json()
-        else:
-            return {"error": put_response.json()}
-
+    # Update the inventory with the new quantity
+    return await make_authenticated_request(url, method="PUT", data=update_payload)
 
 # Endpoints
 
@@ -141,51 +106,56 @@ async def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)
     # Validate customer
     customer = await validate_customer(order.customer_id)
     if not customer:
-        raise HTTPException(status_code=400, detail="InvalidCustomer: Customer not found")
+        raise HTTPException(status_code=400, detail="InvalidCustomer: The customer ID provided is invalid.")
 
     # Validate product
     product = await validate_product(order.product_id)
     if not product:
-        raise HTTPException(status_code=400, detail="InvalidProduct: Product not found")
+        raise HTTPException(status_code=400, detail="InvalidProduct: The product ID provided is invalid.")
 
     # Validate pricing
     pricing = await validate_pricing(order.product_id)
     if not pricing:
-        raise HTTPException(status_code=400, detail="PricingNotFound: No pricing found for this product")
-    
+        raise HTTPException(status_code=400, detail="PricingNotFound: No pricing found for product_id={order.product_id}")
+
     price = pricing["amount"]
     discount = pricing.get("discount", 0)
     discounted_price = price * (1 - discount / 100)
     total_amount = round(order.quantity * discounted_price, 2)
 
     # Update inventory
-    inventory_update = await update_inventory(order.product_id, -order.quantity)
-    if not inventory_update:
-        raise HTTPException(status_code=400, detail="InventoryError: Insufficient inventory")
+    inventory = await update_inventory(order.product_id, order.quantity)
+    if not inventory:
+        raise HTTPException(status_code=400, detail="InventoryError: Insufficient inventory or product not found")
 
-    # Create order in DB
+    # Create the order in the database
     new_order = models.Order(
         customer_id=order.customer_id,
         product_id=order.product_id,
         quantity=order.quantity,
         total_amount=total_amount,
-        status="delivered"
+        status="Delivered"
     )
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
 
-    return schemas.OrderOut(
-        id=new_order.id,
-        customer_id=new_order.customer_id,
-        product_id=new_order.product_id,
-        quantity=new_order.quantity,
-        amount=price,
-        discount=discount,
-        total_amount=total_amount,
-        status=new_order.status,
-        created_at=new_order.created_at
-    )
+    return {
+        "id": new_order.id,
+        "customer_id": new_order.customer_id,
+        "product_id": new_order.product_id,
+        "quantity": new_order.quantity,
+        "amount": price,
+        "discount": discount,
+        "total_amount": new_order.total_amount,
+        "status": new_order.status,
+        "created_at": new_order.created_at,
+    }
+
+
+    # Save order
+    # return crud.create_order(db, order, total_amount)
+
 
 # @app.get("/orders", response_model=List[schemas.OrderOut])
 # def list_orders(db: Session = Depends(get_db)):
@@ -223,20 +193,20 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
     existing_order = crud.get_order_by_id(db, order_id)
     if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
-
-    # Validate customer if changed
-    if order.customer_id != existing_order.customer_id:
-        customer = await validate_customer(order.customer_id)
-        if not customer:
-            raise HTTPException(status_code=400, detail="InvalidCustomer: Customer not found")
-
-    # Validate product if changed
+    
+    # Validate product ID if it's changed
     if order.product_id != existing_order.product_id:
         product = await validate_product(order.product_id)
         if not product:
-            raise HTTPException(status_code=400, detail="InvalidProduct: Product not found")
+            raise HTTPException(status_code=400, detail="Invalid product ID")
 
-    # Validate pricing
+    # Validate customer ID if it's changed
+    if order.customer_id != existing_order.customer_id:
+        customer = await validate_customer(order.customer_id)
+        if not customer:
+            raise HTTPException(status_code=400, detail="Invalid customer ID")
+
+    # Validate pricing for the product
     pricing = await validate_pricing(order.product_id)
     if not pricing:
         raise HTTPException(status_code=400, detail="PricingNotFound: No pricing found for product")
@@ -265,25 +235,35 @@ async def update_order(order_id: int, order: schemas.OrderUpdate, db: Session = 
 
     # Update DB order
     updated_order = crud.update_order(db, order_id, order, total_amount)
-    return updated_order
+
+    # Manually add missing fields for response
+    return {
+        "id": updated_order.id,
+        "customer_id": updated_order.customer_id,
+        "product_id": updated_order.product_id,
+        "quantity": updated_order.quantity,
+        "amount": price,  # Add amount here
+        "discount": discount,  # Add discount here
+        "total_amount": updated_order.total_amount,  # Add total_amount here
+        "status": updated_order.status,
+        "created_at": updated_order.created_at,
+    }
+
 
 
 # DELETE - Delete Order
-@app.delete("/orders/{order_id}", response_model=schemas.OrderOut)
-def delete_order(order_id: int, db: Session = Depends(get_db)):
-    try:
-        # Get the order
-        existing_order = crud.get_order_by_id(db, order_id)
-        if not existing_order:
-            raise HTTPException(status_code=404, detail="Order not found")
-
-        # Delete the order
-        deleted_order = crud.delete_order(db, order_id)
-        return deleted_order
-
-    except HTTPException:
-        # Keep 404 errors as is
-        raise
-    except Exception:
-        # Any other internal error should just return 404 "Order not found"
+@app.delete("/orders/{order_id}")
+async def delete_order(order_id: int, db: Session = Depends(get_db)):
+    existing_order = crud.get_order_by_id(db, order_id)
+    if not existing_order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    # Restore inventory
+    restore_inventory = await update_inventory(existing_order.product_id, -existing_order.quantity)
+    if not restore_inventory:
+        raise HTTPException(status_code=400, detail="Failed to restore inventory after deletion")
+
+    # Delete order from DB
+    crud.delete_order(db, order_id)
+
+    return JSONResponse(content={"message": "Order deleted successfully"})

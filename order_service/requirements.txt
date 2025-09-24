@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-multipart
+sqlalchemy        # if using database
+databases         # optional, if async DB
+pydantic
+httpx             # if calling other microservices
+python-dotenv     # if using .env config

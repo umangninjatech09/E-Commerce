@@ -8,7 +8,7 @@ class SupplierBase(BaseModel):
     phone: str
     address: str
     status: Literal["active", "inactive"] = "active"
-
+ 
 class SupplierCreate(SupplierBase):
     pass
 
