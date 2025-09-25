@@ -251,6 +251,7 @@ async def delete_order(order_id: int, db: Session = Depends(get_db)):
     # Delete order from DB
     crud.delete_order(db, order_id)
 
+<<<<<<< HEAD
     return JSONResponse(content={"message": "Order deleted successfully"})
 
 
@@ -287,3 +288,6 @@ async def get_frequent_products(
 
 
 
+=======
+    return JSONResponse(content={"message": "Order deleted successfully"})
+>>>>>>> 2d33158d184d00420d74425b3572b63d8ad16a74

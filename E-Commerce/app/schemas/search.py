@@ -16,8 +16,6 @@ class SearchIndexOut(SearchIndexBase):
     customer_name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
- 
+
     class Config:
         from_attributes = True
- 
- 

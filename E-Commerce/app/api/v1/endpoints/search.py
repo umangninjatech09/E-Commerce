@@ -12,7 +12,6 @@ from app.models.customer import Customer
 from app.models.inventory import Inventory
 from app.models.pricing import Pricing
 
-
 router = APIRouter()
  
 @router.post("/", response_model=SearchIndexOut)
@@ -21,22 +20,22 @@ def create_search_index_entry(obj_in: SearchIndexCreate, db: Session = Depends(g
     product = db.query(Product).filter(Product.id == obj_in.product_id).first()
     if not product:
         return error_response(404, "ProductNotFound", f"Cannot create: product with id {obj_in.product_id} was not found.")
-
+ 
     # check customer
     customer = db.query(Customer).filter(Customer.id == obj_in.customer_id).first()
     if not customer:
         return error_response(404, "CustomerNotFound", f"Cannot create: customer with id {obj_in.customer_id} was not found.")
-
+ 
     # check inventory
     inventory = db.query(Inventory).filter(Inventory.id == obj_in.inventory_id).first()
     if not inventory:
         return error_response(404, "InventoryNotFound", f"Cannot create: inventory with id {obj_in.inventory_id} was not found.")
-
+ 
     # check pricing
     pricing = db.query(Pricing).filter(Pricing.id == obj_in.pricing_id).first()
     if not pricing:
         return error_response(404, "PricingNotFound", f"Cannot create: pricing with id {obj_in.pricing_id} was not found.")
-
+ 
     # ✅ all checks passed → create entry
     return crud_search.create_search_index(db, obj_in)
 

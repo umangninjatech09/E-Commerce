@@ -25,13 +25,13 @@ class SearchIndex(Base):
         if self.product:
             return self.product.name
         return None
-    
+ 
     @property
     def customer_name(self):
         if self.customer:
             return self.customer.name
         return None
- 
+
     @property
     def description(self):
         if self.product:

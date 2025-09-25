@@ -36,6 +36,13 @@ def update_purchases(purchase_id: int, purchase: PurchaseCreate, db: Session = D
         return error_response(404, "PurchaseNotFound", f"Cannot update: purchase with id {purchase_id} was not found.")
     return db_purchase
 
+# @router.delete("/{purchase_id}", response_model=Purchase)
+# def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
+#     db_purchase = delete_purchase(db, purchase_id)
+#     if not db_purchase:
+#         return error_response(404, "PurchaseNotFound", f"Cannot delete: purchase with id {purchase_id} was not found.")
+#     return db_purchase
+
 @router.delete("/{purchase_id}")
 def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
     deleted = delete_purchase(db, purchase_id)

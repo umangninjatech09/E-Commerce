@@ -40,5 +40,8 @@ def update_purchases(purchase_id: int, purchase: PurchaseCreate, db: Session = D
 def delete_purchases(purchase_id: int, db: Session = Depends(get_db)):
     deleted = delete_purchase(db, purchase_id)
     if not deleted:
+    deleted = delete_purchase(db, purchase_id)
+    if not deleted:
         return error_response(404, "PurchaseNotFound", f"Cannot delete: purchase with id {purchase_id} was not found.")
+    return {"detail": "Purchase deleted successfully"}
     return {"detail": "Purchase deleted successfully"}

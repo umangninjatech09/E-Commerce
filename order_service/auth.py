@@ -2,7 +2,7 @@ import httpx
 from fastapi import HTTPException
 
 # Define your authentication details
-AUTH_URL = "http://ecommerce:8000/auth/login"
+AUTH_URL = "http://127.0.0.1:8000/auth/login"
 
 # Get OAuth2 token from authentication service (use secure credentials in real app)
 async def get_oauth_token() -> str:

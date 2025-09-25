@@ -18,7 +18,6 @@ def create_inventory(inventory: schemas.InventoryCreate, db: Session = Depends(g
         return error_response(400, "DuplicateInventory", f"Inventory record for product_id={inventory.product_id} already exists.")
     return crud.create_inventory(db, inventory)
 
-
 @router.get("/", response_model=Page[schemas.InventoryResponse])
 def list_inventory(
     db: Session = Depends(get_db),
