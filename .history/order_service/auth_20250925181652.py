@@ -2,7 +2,7 @@ import httpx
 from fastapi import HTTPException
 
 # Define your authentication details
-AUTH_URL = "http://localhost:8000/auth/login"
+AUTH_URL = "http://local/auth/login"
 
 # Get OAuth2 token from authentication service (use secure credentials in real app)
 async def get_oauth_token() -> str:
