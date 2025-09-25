@@ -8,7 +8,6 @@ services:
       - "8000:8000"
     volumes:
       - ./E-Commerce/E-Commerce.db:/app/E-Commerce.db
-      - 
     environment:
       - DATABASE_URL=sqlite:///./E-Commerce.db
       - REDIS_URL=redis://redis:6379/0
