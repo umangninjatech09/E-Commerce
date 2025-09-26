@@ -28,9 +28,8 @@ services:
       - DATABASE_URL=sqlite:///./orders.db
       - REDIS_URL=redis://redis:6379/0
       - PYTHONPATH=/app
-    depends_on:
-      - ecommerce
-      - redis
+
+    
  
   redis:
     image: redis:7
