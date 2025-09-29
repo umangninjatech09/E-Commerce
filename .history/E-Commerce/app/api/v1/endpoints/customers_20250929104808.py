@@ -25,7 +25,7 @@ def list_customers(
     db: Session = Depends(get_db),
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
-    search: str | None = Query(None, description="Search by name or email")
+    search: str | None = Query(None, description="Search by name or email"),
 ):
     query = db.query(Customer)
 

@@ -26,10 +26,8 @@ def read_suppliers(
     search: str | None = Query(None, description="Search by supplier name")
 ):
     query = db.query(SupplierModel)
-
-    if search:
-        search_term = f"%{search}%"
-        query = query.filter(SupplierModel.name.ilike(search_term)) 
+    
+     
     return paginate(query, page, size)
 
 @router.get("/{supplier_id}", response_model=SupplierOut)
