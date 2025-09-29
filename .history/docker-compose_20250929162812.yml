@@ -1,0 +1,56 @@
+
+services:
+  ecommerce:
+    build:
+      context: ./E-Commerce
+      dockerfile: Dockerfile
+    container_name: ecommerce_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./E-Commerce:/app/E-Commerce
+      - ./order_service:/app/order_service
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+
+  order_service:
+    build:
+      context: ./order_service
+      dockerfile: Dockerfile
+    container_name: order_service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./E-Commerce:/app/E-Commerce
+      - ./order_service:/app/order_service
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+      - ecommerce
+
+  db:
+    image: postgres:15
+    container_name: ecommerce_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:7
+    container_name: ecommerce_redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
